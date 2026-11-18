@@ -1,0 +1,1781 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>ImagingArts — Creative Branding | We Think BIG for Your Brand! (Dar es Salaam)</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@500;700;800&display=swap" rel="stylesheet">
+  <!-- Three.js CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            display: ['Space Grotesk', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            obsidian: '#0D0E12',
+            iaNavy: '#162A64',
+            iaNavyLight: '#25449C',
+            iaRed: '#E31E24',
+            iaRedDark: '#B31217',
+            cyanPrint: '#00E5FF',
+            magentaPrint: '#FF007F',
+            yellowPrint: '#FFD600',
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: #0D0E12;
+      color: #F8FAFC;
+      font-family: 'Inter', sans-serif;
+    }
+
+
+
+    #webgl-canvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      display: block;
+    }
+
+    #spatial-stage {
+      position: fixed;
+      inset: 0;
+      z-index: 10;
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      perspective: 1200px;
+    }
+
+    .zone-layer {
+      position: absolute;
+      width: 100%;
+      max-width: 1300px;
+      padding: 1.25rem;
+      transition: filter 0.15s ease-out;
+      will-change: transform, opacity, filter;
+      pointer-events: none;
+    }
+
+    .zone-layer.active-zone {
+      pointer-events: auto;
+    }
+
+    .studio-card {
+      background: rgba(13, 14, 18, 0.82);
+      backdrop-filter: blur(22px);
+      -webkit-backdrop-filter: blur(22px);
+      border: 1px solid rgba(255, 255, 255, 0.13);
+      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.88), 0 0 35px rgba(22, 42, 100, 0.25);
+      transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .studio-card:hover {
+      border-color: rgba(227, 30, 36, 0.55);
+      box-shadow: 0 30px 70px -10px rgba(0, 0, 0, 0.95), 0 0 40px rgba(227, 30, 36, 0.18);
+    }
+
+    .brand-gradient-text {
+      background: linear-gradient(120deg, #FFFFFF 15%, #3B66E0 50%, #E31E24 88%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .brand-bar {
+      background: linear-gradient(90deg, #162A64 0%, #3B66E0 35%, #E31E24 72%, #FFFFFF 100%);
+    }
+
+    .custom-scroll::-webkit-scrollbar {
+      width: 5px;
+    }
+    .custom-scroll::-webkit-scrollbar-track {
+      background: rgba(255,255,255,0.03);
+    }
+    .custom-scroll::-webkit-scrollbar-thumb {
+      background: rgba(227, 30, 36, 0.45);
+      border-radius: 999px;
+    }
+
+    input, textarea, select {
+      user-select: text;
+      -webkit-user-select: text;
+    }
+
+    /* =========================================================================
+       OPENING LOGO ANIMATIONS
+       ========================================================================= */
+    #intro-preloader {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      background: radial-gradient(circle at center, #FFFFFF 0%, #F1F5F9 68%, #E2E8F0 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: transform 1.15s cubic-bezier(0.76, 0, 0.24, 1), opacity 0.95s ease, filter 1.15s ease;
+      transform-origin: center center;
+    }
+
+    #intro-preloader.zoom-exit {
+      transform: scale(1.03);
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    /* Animated SVG Path Tracing for Navy & Crimson Target Lines */
+    .logo-draw-line {
+      stroke-dasharray: 220;
+      stroke-dashoffset: 220;
+      animation: drawVectorStroke 1.1s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+    .logo-draw-line-2 {
+      stroke-dasharray: 220;
+      stroke-dashoffset: 220;
+      animation: drawVectorStroke 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.35s forwards;
+    }
+    .logo-draw-line-3 {
+      stroke-dasharray: 220;
+      stroke-dashoffset: 220;
+      animation: drawVectorStroke 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.65s forwards;
+    }
+
+    @keyframes drawVectorStroke {
+      to {
+        stroke-dashoffset: 0;
+      }
+    }
+
+    /* Concentric Target Nodes Pop & Radar Pulse */
+    .logo-node-group {
+      opacity: 0;
+      transform-origin: center;
+      animation: nodePopIn 0.65s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+    .logo-node-1 { animation-delay: 0.3s; }
+    .logo-node-2 { animation-delay: 0.6s; }
+
+    @keyframes nodePopIn {
+      0% { opacity: 0; transform: scale(0.2); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    /* 3D Perspective Assembly for 'ImagingArts' Typography */
+    .logo-wordmark-reveal {
+      opacity: 0;
+      transform: translateY(18px) scale(0.94);
+      animation: wordmarkAssemble 0.85s cubic-bezier(0.16, 1, 0.3, 1) 0.45s forwards;
+    }
+
+    @keyframes wordmarkAssemble {
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    /* Expanding Red Rules & 'Creative Branding' Tagline */
+    .logo-rule-expand {
+      stroke-dasharray: 140;
+      stroke-dashoffset: 140;
+      animation: drawVectorStroke 0.85s cubic-bezier(0.22, 1, 0.36, 1) 0.95s forwards;
+    }
+    .logo-tagline-reveal {
+      opacity: 0;
+      letter-spacing: 0.35em;
+      animation: taglineFocus 0.9s cubic-bezier(0.16, 1, 0.3, 1) 1.05s forwards;
+    }
+
+    @keyframes taglineFocus {
+      to {
+        opacity: 1;
+        letter-spacing: 0.08em;
+      }
+    }
+
+    .intro-progress-bar {
+      width: 0%;
+      animation: introFillBar 3.1s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+
+    @keyframes introFillBar {
+      to { width: 100%; }
+    }
+  
+/* =========================================================================
+   CLIENT CASE STUDIES - ImagingArts navy / crimson visual system
+   ========================================================================= */
+.ia-case-shell{max-height:88vh;overflow:hidden;background:rgba(13,14,18,.94);border:1px solid rgba(255,255,255,.13);}
+.ia-case-scroll{max-height:88vh;overflow-y:auto;padding:clamp(16px,2.2vw,30px);}
+.ia-case-header{display:flex;align-items:flex-end;justify-content:space-between;gap:22px;padding-bottom:20px;border-bottom:1px solid rgba(255,255,255,.12);}
+.ia-eyebrow{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10px;letter-spacing:.19em;text-transform:uppercase;color:#F04449;font-weight:800;}
+.ia-case-header-mark{display:flex;align-items:center;gap:10px;color:#fff;font-size:12px;font-weight:800;letter-spacing:.08em;line-height:1.15;white-space:nowrap;}
+.ia-case-header-mark small{font-size:8px;letter-spacing:.19em;color:#9CA3AF;font-weight:600;}
+.ia-mark-line{display:block;width:32px;height:3px;background:linear-gradient(90deg,#162A64,#E31E24);}
+.ia-case-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:18px 0 15px;}
+.ia-case-filters{display:flex;gap:7px;flex-wrap:wrap;}
+.ia-filter{border:1px solid rgba(255,255,255,.13);background:rgba(255,255,255,.035);color:#CBD5E1;padding:8px 12px;border-radius:999px;font-size:11px;font-weight:700;transition:all .2s ease;}
+.ia-filter:hover,.ia-filter.active{background:#162A64;border-color:rgba(92,129,224,.7);color:#fff;}
+.ia-case-count{font-family:ui-monospace,monospace;color:#94A3B8;font-size:10px;letter-spacing:.1em;text-transform:uppercase;}
+.ia-case-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;}
+.ia-project-card{min-width:0;border:1px solid rgba(255,255,255,.1);border-radius:17px;overflow:hidden;background:linear-gradient(145deg,rgba(255,255,255,.065),rgba(255,255,255,.018));transition:border-color .22s ease,transform .22s ease,background .22s ease;display:flex;flex-direction:column;}
+.ia-project-card:hover{border-color:rgba(227,30,36,.65);transform:translateY(-3px);background:rgba(255,255,255,.065);}
+.ia-project-cover{position:relative;height:190px;background:#090B12;overflow:hidden;border-bottom:1px solid rgba(255,255,255,.08);}
+.ia-project-cover img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .45s cubic-bezier(.2,.7,.2,1);}
+.ia-project-card:hover .ia-project-cover img{transform:scale(1.035);}
+.ia-project-cover.contain img{object-fit:contain;padding:9px;background:linear-gradient(135deg,#080A12,#11182A);}
+.ia-project-cover:after{content:"";position:absolute;inset:auto 0 0;height:48px;background:linear-gradient(transparent,rgba(0,0,0,.4));pointer-events:none;}
+.ia-project-body{padding:15px;display:flex;flex-direction:column;flex:1;}
+.ia-project-category{color:#F87171;font-family:ui-monospace,monospace;font-size:9px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;}
+.ia-project-name{font-family:'Inter',sans-serif;font-size:16px;line-height:1.3;font-weight:800;color:#F8FAFC;margin:7px 0 7px;}
+.ia-project-desc{font-size:11px;line-height:1.65;color:#AAB4C5;min-height:54px;}
+.ia-project-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:15px;padding-top:12px;border-top:1px solid rgba(255,255,255,.08);}
+.ia-project-images{font-family:ui-monospace,monospace;font-size:9px;color:#94A3B8;letter-spacing:.08em;text-transform:uppercase;}
+.ia-view-project{color:#fff;background:#E31E24;border:0;border-radius:9px;padding:8px 11px;font-size:10px;font-weight:800;letter-spacing:.03em;}
+.ia-view-project:hover{background:#B91C24;}
+.ia-subsection{padding-top:27px;margin-top:25px;border-top:1px solid rgba(255,255,255,.1);}
+.ia-subsection-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;margin-bottom:15px;}
+.ia-subsection-heading h3{font-size:19px;line-height:1.2;font-weight:800;color:#fff;margin-top:5px;}
+.ia-subsection-heading p{font-size:11px;line-height:1.6;color:#9CA3AF;max-width:380px;}
+.ia-logo-grid{display:grid;grid-template-columns:repeat(9,minmax(0,1fr));gap:8px;}
+.ia-logo-tile{height:76px;border:1px solid rgba(255,255,255,.1);background:#F8FAFC;border-radius:11px;display:flex;align-items:center;justify-content:center;padding:10px;overflow:hidden;}
+.ia-logo-tile img{max-width:100%;max-height:100%;object-fit:contain;}
+.ia-logo-name{font-size:8px;color:#475569;text-align:center;margin-top:5px;}
+.ia-spread-button{display:flex;align-items:center;justify-content:space-between;gap:20px;width:100%;margin-top:12px;padding:12px 14px;border:1px solid rgba(255,255,255,.12);border-radius:10px;color:#E2E8F0;background:rgba(22,42,100,.22);font-size:11px;font-weight:700;text-align:left;}
+.ia-spread-button:hover{border-color:rgba(227,30,36,.6);background:rgba(22,42,100,.4);}
+.ia-profile-gallery{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;}
+.ia-profile-tile{border:1px solid rgba(255,255,255,.11);border-radius:12px;overflow:hidden;background:#080A12;text-align:left;}
+.ia-profile-tile img{width:100%;height:125px;object-fit:cover;display:block;}
+.ia-profile-tile .caption{display:block;padding:8px 10px;color:#AAB4C5;font-size:9px;}
+.ia-case-footer{display:flex;align-items:center;justify-content:space-between;gap:15px;padding:20px 0 3px;margin-top:24px;border-top:1px solid rgba(255,255,255,.1);font-family:ui-monospace,monospace;font-size:8px;letter-spacing:.1em;color:#64748B;}
+.ia-case-footer i{color:#E31E24;font-style:normal;padding:0 4px;}
+.ia-modal{position:fixed;inset:0;z-index:150;display:none;align-items:center;justify-content:center;padding:22px;}
+.ia-modal.open{display:flex;}
+.ia-modal-backdrop{position:absolute;inset:0;background:rgba(1,3,8,.86);backdrop-filter:blur(8px);}
+.ia-modal-panel{position:relative;z-index:1;width:min(100%,1000px);max-height:90vh;overflow-y:auto;background:#0D111B;border:1px solid rgba(255,255,255,.16);border-top:3px solid #E31E24;border-radius:20px;padding:clamp(18px,3vw,30px);box-shadow:0 30px 100px rgba(0,0,0,.6);}
+.ia-modal-close{position:sticky;top:0;float:right;width:36px;height:36px;border:1px solid rgba(255,255,255,.15);border-radius:50%;color:white;background:#17213B;font-size:24px;line-height:1;z-index:5;}
+.ia-modal-title{font-size:clamp(24px,3vw,36px);font-weight:900;line-height:1.1;color:#fff;margin:8px 42px 10px 0;}
+.ia-modal-description{font-size:13px;line-height:1.75;color:#AAB4C5;max-width:760px;}
+.ia-modal-tags{display:flex;flex-wrap:wrap;gap:7px;margin:15px 0 20px;}
+.ia-modal-tag{padding:7px 10px;border-radius:7px;background:rgba(22,42,100,.42);border:1px solid rgba(92,129,224,.25);font-size:10px;color:#D8E2FA;}
+.ia-modal-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:16px 0 22px;}
+.ia-stat{padding:12px;border:1px solid rgba(255,255,255,.09);border-radius:11px;background:rgba(255,255,255,.035);}
+.ia-stat strong{display:block;color:#fff;font-size:20px;font-weight:900;}
+.ia-stat span{display:block;color:#9CA3AF;font-size:9px;line-height:1.45;margin-top:5px;}
+.ia-modal-section-title{font-size:13px;font-weight:800;color:#fff;margin:19px 0 11px;letter-spacing:.04em;}
+.ia-modal-gallery{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;}
+.ia-modal-image{display:block;width:100%;height:185px;object-fit:cover;background:#05070C;border:1px solid rgba(255,255,255,.12);border-radius:10px;cursor:zoom-in;}
+.ia-modal-image.contain{object-fit:contain;padding:6px;background:#080B14;}
+.ia-quote{border-left:3px solid #E31E24;padding:12px 16px;background:rgba(255,255,255,.035);color:#E2E8F0;font-size:12px;line-height:1.7;margin-top:20px;border-radius:0 10px 10px 0;}
+.ia-quote small{display:block;color:#94A3B8;margin-top:8px;font-size:10px;}
+.ia-lightbox{position:fixed;inset:0;z-index:180;background:rgba(0,0,0,.94);display:none;align-items:center;justify-content:center;flex-direction:column;padding:40px 24px 24px;}
+.ia-lightbox.open{display:flex;}
+.ia-lightbox img{max-width:min(94vw,1500px);max-height:78vh;object-fit:contain;box-shadow:0 20px 80px rgba(0,0,0,.55);}
+.ia-lightbox p{color:#CBD5E1;font-size:11px;margin-top:13px;text-align:center;}
+.ia-lightbox-close{position:absolute;right:25px;top:15px;border:0;background:transparent;color:white;font-size:40px;cursor:pointer;}
+@media(max-width:1024px){.ia-case-grid{grid-template-columns:repeat(2,minmax(0,1fr));}.ia-logo-grid{grid-template-columns:repeat(5,minmax(0,1fr));}}
+@media(max-width:640px){.ia-case-shell,.ia-case-scroll{max-height:90vh;}.ia-case-header{align-items:flex-start;}.ia-case-header-mark{display:none;}.ia-case-grid{grid-template-columns:1fr;}.ia-project-cover{height:205px;}.ia-subsection-heading{display:block;}.ia-subsection-heading p{margin-top:8px;}.ia-logo-grid{grid-template-columns:repeat(3,minmax(0,1fr));}.ia-profile-gallery{grid-template-columns:repeat(2,minmax(0,1fr));}.ia-profile-tile img{height:115px;}.ia-case-footer{display:block;line-height:1.8;}.ia-modal{padding:8px;}.ia-modal-panel{max-height:95vh;border-radius:15px;padding:17px;}.ia-modal-stats{grid-template-columns:repeat(2,minmax(0,1fr));}.ia-modal-gallery{grid-template-columns:repeat(2,minmax(0,1fr));}.ia-modal-image{height:140px;}}
+
+</style>
+</head>
+<body class="bg-obsidian text-slate-100 antialiased selection:bg-iaRed selection:text-white">
+
+  <!-- =========================================================================
+       1. CINEMATIC OPENING LOGO PRELOADER (PLAYS ON LOAD & REPLAYABLE)
+       ========================================================================= -->
+  <div id="intro-preloader" role="dialog" aria-label="ImagingArts Creative Branding Opening Sequence">
+
+    <!-- Centered Official ImagingArts Vector Logo Showcase -->
+    <div class="relative px-6 py-8 flex flex-col items-center max-w-2xl w-full">
+      <svg id="opening-logo-svg" class="w-full max-w-[440px] sm:max-w-[540px] h-auto drop-shadow-xl" viewBox="0 0 460 155" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Segment 1: Deep Navy Line rising from 'i' in Imaging to Node 1 -->
+        <line class="logo-draw-line" x1="108" y1="74" x2="162" y2="26" stroke="#162A64" stroke-width="5" stroke-linecap="round"/>
+        <!-- Segment 2: Crimson Red Line descending from Node 1 to Node 2 above 'A' -->
+        <line class="logo-draw-line-2" x1="162" y1="26" x2="216" y2="62" stroke="#E31E24" stroke-width="5" stroke-linecap="round"/>
+        <!-- Segment 3: Crimson Red Line ascending upward-right from Node 2 -->
+        <line class="logo-draw-line-3" x1="216" y1="62" x2="268" y2="8" stroke="#E31E24" stroke-width="5" stroke-linecap="round"/>
+
+        <!-- Target Node 1 (Above 'i' in Imaging) -->
+        <g class="logo-node-group logo-node-1">
+          <circle cx="162" cy="26" r="13" fill="#FFFFFF" stroke="#E31E24" stroke-width="4.2"/>
+          <circle cx="162" cy="26" r="7" fill="#FFFFFF" stroke="#162A64" stroke-width="2.5"/>
+          <circle cx="162" cy="26" r="2.8" fill="#E31E24"/>
+        </g>
+
+        <!-- Target Node 2 (Above 'A' in Arts) -->
+        <g class="logo-node-group logo-node-2">
+          <circle cx="216" cy="62" r="13" fill="#FFFFFF" stroke="#E31E24" stroke-width="4.2"/>
+          <circle cx="216" cy="62" r="7" fill="#FFFFFF" stroke="#162A64" stroke-width="2.5"/>
+          <circle cx="216" cy="62" r="2.8" fill="#E31E24"/>
+        </g>
+
+        <!-- Primary Wordmark: 'Imaging' (#162A64 Navy) + 'Arts' (#0D0E12 Pure Black) -->
+        <g class="logo-wordmark-reveal">
+          <text x="230" y="112" text-anchor="middle" font-family="'Space Grotesk', 'Inter', sans-serif" font-weight="800" font-size="62" letter-spacing="-1.5">
+            <tspan fill="#162A64">Imaging</tspan><tspan fill="#0D0E12">Arts</tspan>
+          </text>
+        </g>
+
+        <!-- Left & Right Crimson Red Flanking Rules -->
+        <line class="logo-rule-expand" x1="34" y1="135" x2="124" y2="135" stroke="#E31E24" stroke-width="3.8" stroke-linecap="round"/>
+        <line class="logo-rule-expand" x1="336" y1="135" x2="426" y2="135" stroke="#E31E24" stroke-width="3.8" stroke-linecap="round"/>
+
+        <!-- Subtitle: 'Creative Branding' in Crimson Red -->
+        <text class="logo-tagline-reveal" x="230" y="142" text-anchor="middle" font-family="'Inter', sans-serif" font-weight="600" font-size="21" fill="#E31E24">
+          Creative Branding
+        </text>
+      </svg>
+
+      <!-- Slogan & Loading Progress Bar -->
+      <p class="mt-5 font-mono text-[11px] sm:text-xs tracking-[0.22em] uppercase text-iaNavy font-bold text-center">
+        We Think <span class="text-iaRed">BIG</span> for Your Brand! · Dar es Salaam
+      </p>
+
+      <div class="mt-4 w-56 sm:w-72 h-1.5 rounded-full bg-slate-200 overflow-hidden">
+        <div id="intro-progress-fill" class="intro-progress-bar h-full bg-gradient-to-r from-iaNavy via-iaRed to-obsidian rounded-full"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Three.js 3D Infinite World Canvas -->
+  <canvas id="webgl-canvas"></canvas>
+
+  <!-- Top Navigation HUD with Official ImagingArts Vector Logo -->
+  <header class="fixed top-0 left-0 right-0 z-50 px-4 sm:px-8 py-3.5 flex items-center justify-between pointer-events-none">
+    <button onclick="jumpToZone(0)" class="pointer-events-auto flex items-center gap-3 group text-left focus:outline-none">
+      <!-- Official ImagingArts Logo Recreation (White Card Pill for Authentic Navy/Red/Black Contrast) -->
+      <div class="px-3 py-1.5 rounded-xl bg-white shadow-lg shadow-black/40 border border-white/20 flex items-center gap-2 group-hover:scale-[1.02] transition-transform">
+        <svg class="h-8 sm:h-9 w-auto" viewBox="0 0 235 66" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Ascending Geometric Line & Target Nodes Icon -->
+          <line x1="36" y1="30" x2="64" y2="12" stroke="#162A64" stroke-width="3.2" stroke-linecap="round"/>
+          <line x1="64" y1="12" x2="86" y2="27" stroke="#E31E24" stroke-width="3.2" stroke-linecap="round"/>
+          <line x1="86" y1="27" x2="112" y2="6" stroke="#E31E24" stroke-width="3.2" stroke-linecap="round"/>
+          <!-- Target Node 1 -->
+          <circle cx="64" cy="12" r="6.5" fill="white" stroke="#E31E24" stroke-width="2.5"/>
+          <circle cx="64" cy="12" r="2.5" fill="#E31E24"/>
+          <!-- Target Node 2 -->
+          <circle cx="86" cy="27" r="6.5" fill="white" stroke="#E31E24" stroke-width="2.5"/>
+          <circle cx="86" cy="27" r="2.5" fill="#E31E24"/>
+          <!-- Typography: Imaging (Navy) + Arts (Black) -->
+          <text x="10" y="47" font-family="'Space Grotesk', 'Inter', sans-serif" font-weight="800" font-size="29" letter-spacing="-0.6">
+            <tspan fill="#162A64">Imaging</tspan><tspan fill="#0D0E12">Arts</tspan>
+          </text>
+          <!-- Red Horizontal Rules flanking Creative Branding -->
+          <line x1="12" y1="57" x2="54" y2="57" stroke="#E31E24" stroke-width="2.2" stroke-linecap="round"/>
+          <text x="115" y="61" text-anchor="middle" font-family="'Inter', sans-serif" font-weight="600" font-size="11.5" fill="#E31E24" letter-spacing="0.6">Creative Branding</text>
+          <line x1="176" y1="57" x2="218" y2="57" stroke="#E31E24" stroke-width="2.2" stroke-linecap="round"/>
+        </svg>
+      </div>
+    </button>
+
+
+
+    <div class="flex items-center gap-2 sm:gap-3 pointer-events-auto">
+      <button onclick="jumpToZone(8)" class="hidden sm:inline-flex px-3.5 py-2 rounded-xl bg-iaNavy/90 border border-white/15 text-white font-display font-bold text-xs tracking-wide hover:bg-iaNavyLight transition-all">
+        Client Portfolio
+      </button>
+      <button onclick="jumpToZone(9)" class="px-4 py-2.5 rounded-xl bg-iaRed text-white font-display font-bold text-xs sm:text-sm tracking-wide hover:bg-iaRedDark transition-all shadow-lg shadow-iaRed/25 active:scale-95">
+        Request Quote
+      </button>
+    </div>
+  </header>
+
+  <!-- Right Floating Scale & Profile Navigator Rail -->
+  <nav aria-label="Scale Spectrum Navigation" class="fixed right-3 sm:right-5 top-1/2 -translate-y-1/2 z-50 hidden sm:flex flex-col items-end gap-1.5 pointer-events-auto max-h-[86vh] overflow-y-auto custom-scroll pr-1">
+    <button onclick="jumpToZone(0)" data-nav="0" class="nav-pill group flex items-center gap-2 px-2.5 py-1.5 rounded-full bg-white/15 border border-iaRed/70 transition-all">
+      <span class="font-mono text-[9px] tracking-wider uppercase text-white font-bold">00 · We Think BIG</span>
+      <span class="w-2.5 h-2.5 rounded-full bg-iaRed"></span>
+    </button>
+    <button onclick="jumpToZone(1)" data-nav="1" class="nav-pill group flex items-center gap-2 px-2.5 py-1.5 rounded-full bg-white/[0.04] border border-white/10 hover:border-white/30 transition-all">
+      <span class="font-mono text-[9px] tracking-wider uppercase text-slate-400 group-hover:text-white">01 · Giant &amp; Large Format</span>
+      <span class="w-2 h-2 rounded-full bg-slate-500 group-hover:bg-white"></span>
+    </button>
+    <button onclick="jumpToZone(2)" data-nav="2" class="nav-pill group flex items-center gap-2 px-2.5 py-1.5 rounded-full bg-white/[0.04] border border-white/10 hover:border-white/30 transition-all">
+      <span class="font-mono text-[9px] tracking-wider uppercase text-slate-400 group-hover:text-white">02 · Publishing &amp; Editorial</span>
+      <span class="w-2 h-2 rounded-full bg-slate-500 group-hover:bg-white"></span>
+    </button>
+    <button onclick="jumpToZone(3)" data-nav="3" class="nav-pill group flex items-center gap-2 px-2.5 py-1.5 rounded-full bg-white/[0.04] border border-white/10 hover:border-white/30 transition-all">
+      <span class="font-mono text-[9px] tracking-wider uppercase text-slate-400 group-hover:text-white">03 · Packaging &amp; Containers</span>
+      <span class="w-2 h-2 rounded-full bg-slate-500 group-hover:bg-white"></span>
+    </button>
+    <button onclick="jumpToZone(4)" data-nav="4" class="nav-pill group flex items-center gap-2 px-2.5 py-1.5 rounded-full bg-white/[0.04] border border-white/10 hover:border-white/30 transition-all">
+      <span class="font-mono text-[9px] tracking-wider uppercase text-slate-400 group-hover:text-white">04 · Marketing &amp; Events</span>
+      <span class="w-2 h-2 rounded-full bg-slate-500 group-hover:bg-white"></span>
+    </button>
+    <button onclick="jumpToZone(5)" data-nav="5" class="nav-pill group flex items-center gap-2 px-2.5 py-1.5 rounded-full bg-white/[0.04] border border-white/10 hover:border-white/30 transition-all">
+      <span class="font-mono text-[9px] tracking-wider uppercase text-slate-400 group-hover:text-white">05 · Corporate Stationery</span>
+      <span class="w-2 h-2 rounded-full bg-slate-500 group-hover:bg-white"></span>
+    </button>
+    <button onclick="jumpToZone(6)" data-nav="6" class="nav-pill group flex items-center gap-2 px-2.5 py-1.5 rounded-full bg-white/[0.04] border border-white/10 hover:border-white/30 transition-all">
+      <span class="font-mono text-[9px] tracking-wider uppercase text-slate-400 group-hover:text-white">06 · Textiles &amp; Merch</span>
+      <span class="w-2 h-2 rounded-full bg-slate-500 group-hover:bg-white"></span>
+    </button>
+    <button onclick="jumpToZone(7)" data-nav="7" class="nav-pill group flex items-center gap-2 px-2.5 py-1.5 rounded-full bg-white/[0.04] border border-white/10 hover:border-white/30 transition-all">
+      <span class="font-mono text-[9px] tracking-wider uppercase text-slate-400 group-hover:text-white">07 · Micro Print &amp; IDs</span>
+      <span class="w-2 h-2 rounded-full bg-slate-500 group-hover:bg-white"></span>
+    </button>
+    <button onclick="jumpToZone(8)" data-nav="8" class="nav-pill group flex items-center gap-2 px-2.5 py-1.5 rounded-full bg-white/[0.04] border border-white/10 hover:border-white/30 transition-all">
+      <span class="font-mono text-[9px] tracking-wider uppercase text-slate-400 group-hover:text-white">08 · Clients &amp; Case Studies</span>
+      <span class="w-2 h-2 rounded-full bg-slate-500 group-hover:bg-white"></span>
+    </button>
+    <button onclick="jumpToZone(9)" data-nav="9" class="nav-pill group flex items-center gap-2 px-2.5 py-1.5 rounded-full bg-white/[0.04] border border-white/10 hover:border-white/30 transition-all">
+      <span class="font-mono text-[9px] tracking-wider uppercase text-slate-400 group-hover:text-white">09 · Studio &amp; HQ Contact</span>
+      <span class="w-2 h-2 rounded-full bg-slate-500 group-hover:bg-white"></span>
+    </button>
+  </nav>
+
+  <!-- Spatial 3D HUD Stage -->
+  <main id="spatial-stage">
+
+    <!-- ZONE 0: HERO — "WE THINK BIG FOR YOUR BRAND!" (Z = 0) -->
+    <section id="zone-0" class="zone-layer active-zone flex flex-col items-center text-center">
+      <div class="inline-flex flex-wrap items-center justify-center gap-2 px-4 py-1.5 rounded-full bg-iaNavy/50 border border-white/15 backdrop-blur-md mb-5">
+        <span class="w-2 h-2 rounded-full bg-iaRed"></span>
+        <span class="font-mono text-[10px] sm:text-[11px] tracking-[0.18em] uppercase text-slate-200">
+          Creative Branding · General Printing · Web &amp; Events · Dar es Salaam
+        </span>
+      </div>
+
+      <h1 class="font-display font-extrabold text-4xl sm:text-6xl md:text-7xl lg:text-8xl tracking-tight leading-[0.96] mb-4 drop-shadow-2xl">
+        <span class="block text-white">We think <span class="text-iaRed">BIG</span></span>
+        <span class="block brand-gradient-text">for your Brand!</span>
+      </h1>
+
+      <p class="max-w-2xl text-sm sm:text-lg text-slate-300 font-light leading-relaxed mb-7 px-2">
+        Powered by 6+ years of creative excellence in Tanzania — from <strong class="text-white font-semibold">Skyscraper Billboards, 3D Signs &amp; Fleet Wraps</strong> to <strong class="text-white font-semibold">Corporate Stationery, Apparel, Web &amp; Micro Security IDs</strong>. <span class="text-iaRed font-semibold">We Print Everything.</span>
+      </p>
+
+      <div class="flex flex-wrap items-center justify-center gap-3 sm:gap-4">
+        <button onclick="jumpToZone(1)" class="px-6 py-3.5 rounded-2xl bg-iaRed text-white font-display font-bold text-sm tracking-wide hover:bg-iaRedDark transition-all shadow-xl shadow-iaRed/30 flex items-center gap-2">
+          <span>Explore 7 Print Tiers</span>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg>
+        </button>
+        <button onclick="openInspector('about')" class="px-6 py-3.5 rounded-2xl bg-iaNavy/80 border border-white/20 text-white font-medium text-sm hover:bg-iaNavyLight transition-all backdrop-blur-md">
+          Company Profile &amp; Legal Info
+        </button>
+      </div>
+    </section>
+
+    <!-- ZONE 1: GIANT & LARGE-FORMAT PRINTING + 2D/3D SIGNS (Z = -1000) -->
+    <section id="zone-1" class="zone-layer opacity-0 flex flex-col md:flex-row items-center justify-between gap-8">
+      <div class="studio-card rounded-3xl p-6 sm:p-8 max-w-lg w-full max-h-[80vh] overflow-y-auto custom-scroll border-t-4 border-t-iaRed">
+        <div class="flex items-center justify-between mb-3">
+          <span class="px-3 py-1 rounded-full bg-iaRed/20 border border-iaRed/50 text-iaRed font-mono text-xs font-bold">
+            TIER 01 // GIANT &amp; EXTERIOR BRANDING
+          </span>
+          <span class="font-mono text-xs text-slate-400">2D &amp; 3D SIGNS</span>
+        </div>
+        <h2 class="font-display font-extrabold text-2xl sm:text-3xl text-white mb-2">
+          Giant &amp; Large-Format Printing
+        </h2>
+        <p class="text-slate-300 text-xs sm:text-sm leading-relaxed mb-4">
+          Wide-format inkjet printers, 3D signage fabrication, and specialized presses creating monumental interior &amp; exterior brand presence across Tanzania.
+        </p>
+        <ul class="space-y-2 text-xs sm:text-sm text-slate-300 mb-6">
+          <li class="flex items-start gap-2"><span class="text-iaRed font-bold">•</span><strong>Billboards &amp; Building Wraps:</strong> Massive vinyl/mesh banners for scaffolding, skyscrapers, and highway unipoles.</li>
+          <li class="flex items-start gap-2"><span class="text-iaRed font-bold">•</span><strong>Vehicle Wraps:</strong> Cast vinyl fleet branding for cars, buses, Fuso Canter trucks, trains, and airplanes (e.g., ESON Super Battery).</li>
+          <li class="flex items-start gap-2"><span class="text-iaRed font-bold">•</span><strong>Trade Show &amp; Stage Displays:</strong> Press conference backdrops, pop-up booths, step-and-repeat banners, and tension fabric structures.</li>
+          <li class="flex items-start gap-2"><span class="text-iaRed font-bold">•</span><strong>2D &amp; 3D Architectural Signs:</strong> Road directional signs, entrance signs, custom wallpaper, floor graphics, window clings, PVC, acrylic &amp; aluminum.</li>
+          <li class="flex items-start gap-2"><span class="text-iaRed font-bold">•</span><strong>Flags &amp; Outdoor Banners:</strong> Institutional flags (Rightway Schools), feather flags, mesh wind banners, and street pole banners.</li>
+        </ul>
+        <div class="flex flex-wrap gap-2.5">
+          <button onclick="openInspector('tier1')" class="px-4 py-2 rounded-xl bg-white text-obsidian font-display font-bold text-xs tracking-wide hover:bg-iaRed hover:text-white transition-colors">
+            Inspect Signage &amp; Wraps
+          </button>
+          <button onclick="selectQuotePreset('Giant & Large-Format Printing')" class="px-4 py-2 rounded-xl bg-iaNavy hover:bg-iaNavyLight text-white font-medium text-xs transition-colors">
+            Quote Giant Project →
+          </button>
+        </div>
+      </div>
+      <div class="hidden lg:flex flex-col gap-3 max-w-xs">
+        <div class="studio-card rounded-2xl p-4 border-l-4 border-l-iaRed">
+          <div class="font-mono text-[10px] text-iaRed uppercase">Proven in Dar es Salaam</div>
+          <div class="font-display font-bold text-sm text-white mt-0.5">ESON Fleet &amp; SF Smart Energy Signs</div>
+          <p class="text-xs text-slate-400 mt-1">Full Fuso Canter truck wraps, road directional signage, and illuminated 3D office branding.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ZONE 2: PUBLISHING & COMMERCIAL EDITORIAL (Z = -2000) -->
+    <section id="zone-2" class="zone-layer opacity-0 flex flex-col md:flex-row-reverse items-center justify-between gap-8">
+      <div class="studio-card rounded-3xl p-6 sm:p-8 max-w-lg w-full max-h-[80vh] overflow-y-auto custom-scroll border-t-4 border-t-iaNavyLight">
+        <div class="flex items-center justify-between mb-3">
+          <span class="px-3 py-1 rounded-full bg-iaNavyLight/30 border border-iaNavyLight text-blue-300 font-mono text-xs font-bold">
+            TIER 02 // EDITORIAL &amp; PROFILES
+          </span>
+          <span class="font-mono text-xs text-slate-400">OFFSET &amp; WEB PRESS</span>
+        </div>
+        <h2 class="font-display font-extrabold text-2xl sm:text-3xl text-white mb-2">
+          Publishing &amp; Commercial Editorial
+        </h2>
+        <p class="text-slate-300 text-xs sm:text-sm leading-relaxed mb-4">
+          High-speed offset, digital, and web presses producing high-impact multi-page publications and corporate profiles.
+        </p>
+        <ul class="space-y-2 text-xs sm:text-sm text-slate-300 mb-6">
+          <li class="flex items-start gap-2"><span class="text-blue-400 font-bold">•</span><strong>Company Profiles &amp; Books:</strong> Custom corporate profile design &amp; printing (500+ profiles for IZ Engineering), hardcovers, textbooks &amp; coffee table books.</li>
+          <li class="flex items-start gap-2"><span class="text-blue-400 font-bold">•</span><strong>Periodicals &amp; Conference Journals:</strong> Glossy magazines, catalogs, trade journals, and Mwana Kigosi / Mwalimu Conference program journals.</li>
+          <li class="flex items-start gap-2"><span class="text-blue-400 font-bold">•</span><strong>Directories, Concept Notes &amp; Manuals:</strong> Technical guides, event concept notes, product instruction manuals, and reference directories.</li>
+        </ul>
+        <div class="flex flex-wrap gap-2.5">
+          <button onclick="openInspector('tier2')" class="px-4 py-2 rounded-xl bg-white text-obsidian font-display font-bold text-xs tracking-wide hover:bg-iaNavyLight hover:text-white transition-colors">
+            Inspect Editorial Specs
+          </button>
+          <button onclick="selectQuotePreset('Publishing & Commercial Editorial')" class="px-4 py-2 rounded-xl bg-iaRed hover:bg-iaRedDark text-white font-medium text-xs transition-colors">
+            Quote Editorial Run →
+          </button>
+        </div>
+      </div>
+      <div class="hidden lg:flex flex-col gap-3 max-w-xs">
+        <div class="studio-card rounded-2xl p-4 border-l-4 border-l-iaNavyLight">
+          <div class="font-mono text-[10px] text-blue-300 uppercase">Design + Print Turnkey</div>
+          <div class="font-display font-bold text-sm text-white mt-0.5">Company Profiles &amp; Program Journals</div>
+          <p class="text-xs text-slate-400 mt-1">From graphic layout to Smyth-sewn &amp; perfect-bound high-gloss production.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ZONE 3: PACKAGING & CONTAINERS (Z = -3000) -->
+    <section id="zone-3" class="zone-layer opacity-0 flex flex-col md:flex-row items-center justify-between gap-8">
+      <div class="studio-card rounded-3xl p-6 sm:p-8 max-w-lg w-full max-h-[80vh] overflow-y-auto custom-scroll border-t-4 border-t-iaRed">
+        <div class="flex items-center justify-between mb-3">
+          <span class="px-3 py-1 rounded-full bg-iaRed/20 border border-iaRed/50 text-iaRed font-mono text-xs font-bold">
+            TIER 03 // STRUCTURAL PACKAGING
+          </span>
+          <span class="font-mono text-xs text-slate-400">BOXES, CANS &amp; POUCHES</span>
+        </div>
+        <h2 class="font-display font-extrabold text-2xl sm:text-3xl text-white mb-2">
+          Packaging &amp; Containers
+        </h2>
+        <p class="text-slate-300 text-xs sm:text-sm leading-relaxed mb-4">
+          Structural packaging design combined with durable printing on cardboard, plastic, metal, and glass for East African manufacturers &amp; retailers.
+        </p>
+        <ul class="space-y-2 text-xs sm:text-sm text-slate-300 mb-6">
+          <li class="flex items-start gap-2"><span class="text-iaRed font-bold">•</span><strong>Corrugated Boxes:</strong> Heavy-duty shipping cartons, retail display boxes, and custom branded subscription boxes.</li>
+          <li class="flex items-start gap-2"><span class="text-iaRed font-bold">•</span><strong>Folding Cartons &amp; Industrial Casing:</strong> Product boxes for cosmetics, perfumes (Nicovic Perfumes), batteries (ESON 12N9L-BS), pharmaceuticals &amp; foods.</li>
+          <li class="flex items-start gap-2"><span class="text-iaRed font-bold">•</span><strong>Flexible Packaging:</strong> Stand-up pouches, snack bags, shrink sleeves, and metallic foil wrappers.</li>
+          <li class="flex items-start gap-2"><span class="text-iaRed font-bold">•</span><strong>Rigid &amp; Disposable Containers:</strong> Direct-to-shape printing on aluminum cans, glass bottles, plastic tubs, and branded disposable cups (Mr RedCups).</li>
+        </ul>
+        <div class="flex flex-wrap gap-2.5">
+          <button onclick="openInspector('tier3')" class="px-4 py-2 rounded-xl bg-white text-obsidian font-display font-bold text-xs tracking-wide hover:bg-iaRed hover:text-white transition-colors">
+            Inspect Packaging Specs
+          </button>
+          <button onclick="selectQuotePreset('Packaging & Containers')" class="px-4 py-2 rounded-xl bg-iaNavy hover:bg-iaNavyLight text-white font-medium text-xs transition-colors">
+            Quote Packaging →
+          </button>
+        </div>
+      </div>
+      <div class="hidden lg:flex flex-col gap-3 max-w-xs">
+        <div class="studio-card rounded-2xl p-4 border-l-4 border-l-iaRed">
+          <div class="font-mono text-[10px] text-iaRed uppercase">Retail Shelf Impact</div>
+          <div class="font-display font-bold text-sm text-white mt-0.5">ESON Battery &amp; Perfume Packaging</div>
+          <p class="text-xs text-slate-400 mt-1">High-contrast UV coating, structural die-lines, and moisture-resistant laminations.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ZONE 4: MARKETING, RETAIL COLLATERAL, WEB & EVENTS (Z = -4000) -->
+    <section id="zone-4" class="zone-layer opacity-0 flex flex-col md:flex-row-reverse items-center justify-between gap-8">
+      <div class="studio-card rounded-3xl p-6 sm:p-8 max-w-lg w-full max-h-[80vh] overflow-y-auto custom-scroll border-t-4 border-t-iaNavyLight">
+        <div class="flex items-center justify-between mb-3">
+          <span class="px-3 py-1 rounded-full bg-iaNavyLight/30 border border-iaNavyLight text-blue-300 font-mono text-xs font-bold">
+            TIER 04 // RETAIL, WEB &amp; EVENTS
+          </span>
+          <span class="font-mono text-xs text-slate-400">360° BRAND ACTIVATION</span>
+        </div>
+        <h2 class="font-display font-extrabold text-2xl sm:text-3xl text-white mb-2">
+          Marketing, Retail &amp; Events Collateral
+        </h2>
+        <p class="text-slate-300 text-xs sm:text-sm leading-relaxed mb-4">
+          Sheet-fed commercial printing paired with full Events Management, Corporate Photography/Videography, and Web Design &amp; Development.
+        </p>
+        <ul class="space-y-2 text-xs sm:text-sm text-slate-300 mb-6">
+          <li class="flex items-start gap-2"><span class="text-blue-400 font-bold">•</span><strong>Flyers, Brochures &amp; Campaign Posters:</strong> Single-sheet handouts, tri-fold brochures, direct mail postcards, and awareness campaigns (POCET).</li>
+          <li class="flex items-start gap-2"><span class="text-blue-400 font-bold">•</span><strong>Posters &amp; POS Displays:</strong> Retail window posters, cardboard standees, shelf talkers, and exhibition front-desk branding.</li>
+          <li class="flex items-start gap-2"><span class="text-blue-400 font-bold">•</span><strong>Menus, Table Tents &amp; Calendars:</strong> Waterproof laminated menus, placemats, wall calendars, desk pads, and pocket planners.</li>
+          <li class="flex items-start gap-2"><span class="text-iaRed font-bold">•</span><strong>Events, Web &amp; Media Production:</strong> Congress management, stage setup (Zanzibar Cake Festival), documentary videos, and responsive websites.</li>
+        </ul>
+        <div class="flex flex-wrap gap-2.5">
+          <button onclick="openInspector('tier4')" class="px-4 py-2 rounded-xl bg-white text-obsidian font-display font-bold text-xs tracking-wide hover:bg-iaNavyLight hover:text-white transition-colors">
+            Inspect Collateral &amp; Digital
+          </button>
+          <button onclick="selectQuotePreset('Marketing & Retail Collateral')" class="px-4 py-2 rounded-xl bg-iaRed hover:bg-iaRedDark text-white font-medium text-xs transition-colors">
+            Quote Campaign →
+          </button>
+        </div>
+      </div>
+      <div class="hidden lg:flex flex-col gap-3 max-w-xs">
+        <div class="studio-card rounded-2xl p-4 border-l-4 border-l-iaNavyLight">
+          <div class="font-mono text-[10px] text-blue-300 uppercase">Print + Digital + Events</div>
+          <div class="font-display font-bold text-sm text-white mt-0.5">Full Congress &amp; Media Execution</div>
+          <p class="text-xs text-slate-400 mt-1">We handle your printed collateral, stage banners, event coverage, and corporate website under one roof.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ZONE 5: CORPORATE STATIONERY & OFFICE ESSENTIALS (Z = -5000) -->
+    <section id="zone-5" class="zone-layer opacity-0 flex flex-col md:flex-row items-center justify-between gap-8">
+      <div class="studio-card rounded-3xl p-6 sm:p-8 max-w-lg w-full max-h-[80vh] overflow-y-auto custom-scroll border-t-4 border-t-iaRed">
+        <div class="flex items-center justify-between mb-3">
+          <span class="px-3 py-1 rounded-full bg-iaRed/20 border border-iaRed/50 text-iaRed font-mono text-xs font-bold">
+            TIER 05 // STATIONERY &amp; SUPPLY
+          </span>
+          <span class="font-mono text-xs text-slate-400">SCHOOL, OFFICE &amp; HOME</span>
+        </div>
+        <h2 class="font-display font-extrabold text-2xl sm:text-3xl text-white mb-2">
+          Corporate Stationery &amp; Office Essentials
+        </h2>
+        <p class="text-slate-300 text-xs sm:text-sm leading-relaxed mb-4">
+          Unlimited supply of standardized, matching corporate, school, and office stationery engineered for consistent daily branding.
+        </p>
+        <ul class="space-y-2 text-xs sm:text-sm text-slate-300 mb-6">
+          <li class="flex items-start gap-2"><span class="text-iaRed font-bold">•</span><strong>Identity Sets &amp; Digital Stamps:</strong> Letterheads, matching envelopes, compliment slips, presentation folders, and custom digital/self-inking stamps.</li>
+          <li class="flex items-start gap-2"><span class="text-iaRed font-bold">•</span><strong>Business Forms:</strong> Carbonless (NCR) invoice books, receipt books, delivery notes, order forms, and packing slips.</li>
+          <li class="flex items-start gap-2"><span class="text-iaRed font-bold">•</span><strong>Notebooks, Diaries &amp; Office Paper:</strong> Branded spiral notebooks, executive diaries, sticky notes, legal pads, and bulk Double A office paper supply.</li>
+        </ul>
+        <div class="flex flex-wrap gap-2.5">
+          <button onclick="openInspector('tier5')" class="px-4 py-2 rounded-xl bg-white text-obsidian font-display font-bold text-xs tracking-wide hover:bg-iaRed hover:text-white transition-colors">
+            Inspect Stationery Specs
+          </button>
+          <button onclick="selectQuotePreset('Corporate Stationery & Office Essentials')" class="px-4 py-2 rounded-xl bg-iaNavy hover:bg-iaNavyLight text-white font-medium text-xs transition-colors">
+            Quote Stationery →
+          </button>
+        </div>
+      </div>
+      <div class="hidden lg:flex flex-col gap-3 max-w-xs">
+        <div class="studio-card rounded-2xl p-4 border-l-4 border-l-iaRed">
+          <div class="font-mono text-[10px] text-iaRed uppercase">Unlimited Contract Supply</div>
+          <div class="font-display font-bold text-sm text-white mt-0.5">Trusted by Schools &amp; Contractors</div>
+          <p class="text-xs text-slate-400 mt-1">Continuous stationery &amp; printable supply for Rightway Schools, IZ Engineering, and MINE Foundation.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ZONE 6: TEXTILES & PROMOTIONAL MERCHANDISE (Z = -6000) -->
+    <section id="zone-6" class="zone-layer opacity-0 flex flex-col md:flex-row-reverse items-center justify-between gap-8">
+      <div class="studio-card rounded-3xl p-6 sm:p-8 max-w-lg w-full max-h-[80vh] overflow-y-auto custom-scroll border-t-4 border-t-iaNavyLight">
+        <div class="flex items-center justify-between mb-3">
+          <span class="px-3 py-1 rounded-full bg-iaNavyLight/30 border border-iaNavyLight text-blue-300 font-mono text-xs font-bold">
+            TIER 06 // APPAREL &amp; PROMO ITEMS
+          </span>
+          <span class="font-mono text-xs text-slate-400">SCREEN, EMBROIDERY &amp; UV</span>
+        </div>
+        <h2 class="font-display font-extrabold text-2xl sm:text-3xl text-white mb-2">
+          Textiles &amp; Promotional Merchandise
+        </h2>
+        <p class="text-slate-300 text-xs sm:text-sm leading-relaxed mb-4">
+          High-durability screen printing, embroidery, sublimation, and rotary UV pad printing on garments, decor, trophies, and 3D objects.
+        </p>
+        <ul class="space-y-2 text-xs sm:text-sm text-slate-300 mb-6">
+          <li class="flex items-start gap-2"><span class="text-blue-400 font-bold">•</span><strong>Corporate &amp; Event Apparel:</strong> Polo shirts, T-shirts (100+ Mwana Kigosi Camp shirts), hoodies, uniforms, caps, and tote bags.</li>
+          <li class="flex items-start gap-2"><span class="text-blue-400 font-bold">•</span><strong>Soft Signage &amp; Decor:</strong> Custom-printed curtains, upholstery fabric, promotional pillows, and throw blankets.</li>
+          <li class="flex items-start gap-2"><span class="text-blue-400 font-bold">•</span><strong>Drinkware, Trophies &amp; Hard Goods:</strong> Branded mugs, water bottles, executive pens, keychains, phone cases, and custom award trophies.</li>
+        </ul>
+        <div class="flex flex-wrap gap-2.5">
+          <button onclick="openInspector('tier6')" class="px-4 py-2 rounded-xl bg-white text-obsidian font-display font-bold text-xs tracking-wide hover:bg-iaNavyLight hover:text-white transition-colors">
+            Inspect Merch Specs
+          </button>
+          <button onclick="selectQuotePreset('Textiles & Promotional Merchandise')" class="px-4 py-2 rounded-xl bg-iaRed hover:bg-iaRedDark text-white font-medium text-xs transition-colors">
+            Quote Merch &amp; Apparel →
+          </button>
+        </div>
+      </div>
+      <div class="hidden lg:flex flex-col gap-3 max-w-xs">
+        <div class="studio-card rounded-2xl p-4 border-l-4 border-l-iaNavyLight">
+          <div class="font-mono text-[10px] text-blue-300 uppercase">Uniforms &amp; Awards</div>
+          <div class="font-display font-bold text-sm text-white mt-0.5">Polos, Caps, Trophies &amp; Mugs</div>
+          <p class="text-xs text-slate-400 mt-1">Crisp chest embroidery and vibrant screen prints built to withstand heavy institutional wear.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ZONE 7: SMALL & MICRO-FORMAT PRINTING (Z = -7000) -->
+    <section id="zone-7" class="zone-layer opacity-0 flex flex-col md:flex-row items-center justify-between gap-8">
+      <div class="studio-card rounded-3xl p-6 sm:p-8 max-w-lg w-full max-h-[80vh] overflow-y-auto custom-scroll border-t-4 border-t-iaRed">
+        <div class="flex items-center justify-between mb-3">
+          <span class="px-3 py-1 rounded-full bg-iaRed/20 border border-iaRed/50 text-iaRed font-mono text-xs font-bold">
+            TIER 07 // MICRO PRECISION &amp; IDs
+          </span>
+          <span class="font-mono text-xs text-slate-400">2400 DPI &amp; PVC CARDS</span>
+        </div>
+        <h2 class="font-display font-extrabold text-2xl sm:text-3xl text-white mb-2">
+          Small &amp; Micro-Format Printing
+        </h2>
+        <p class="text-slate-300 text-xs sm:text-sm leading-relaxed mb-4">
+          Ultra-fine precision printing for staff identification, event passes, product tracking, and anti-counterfeit security.
+        </p>
+        <ul class="space-y-2 text-xs sm:text-sm text-slate-300 mb-6">
+          <li class="flex items-start gap-2"><span class="text-iaRed font-bold">•</span><strong>Business Cards &amp; PVC Staff IDs:</strong> Embossed, foil-stamped, matte-laminated cards (500+ for SF Smart Energy) &amp; PVC lanyard IDs (500+ Mwalimu Conference IDs).</li>
+          <li class="flex items-start gap-2"><span class="text-iaRed font-bold">•</span><strong>Labels &amp; Stickers:</strong> Product ingredient labels, barcode stickers, shipping labels, and die-cut vinyl decals.</li>
+          <li class="flex items-start gap-2"><span class="text-iaRed font-bold">•</span><strong>Tickets, Certificates &amp; Wristbands:</strong> Graduation &amp; award certificates (500+ Rightway &amp; Mwalimu), event tickets, boarding passes &amp; Tyvek wristbands.</li>
+          <li class="flex items-start gap-2"><span class="text-iaRed font-bold">•</span><strong>Tags &amp; Hangtags:</strong> Retail clothing price tags, luggage tags, and industrial asset tags.</li>
+          <li class="flex items-start gap-2"><span class="text-iaRed font-bold">•</span><strong>Security &amp; Financial Print:</strong> Banknotes, passports, postage stamps, scratch-off lottery tickets, and tamper-evident holograms.</li>
+          <li class="flex items-start gap-2"><span class="text-iaRed font-bold">•</span><strong>Pharmaceutical Inserts:</strong> Thin, precision-folded medication instruction leaflets packed inside tiny pill boxes.</li>
+        </ul>
+        <div class="flex flex-wrap gap-2.5">
+          <button onclick="openInspector('tier7')" class="px-4 py-2 rounded-xl bg-white text-obsidian font-display font-bold text-xs tracking-wide hover:bg-iaRed hover:text-white transition-colors">
+            Inspect Micro Specs
+          </button>
+          <button onclick="selectQuotePreset('Small & Micro-Format Printing')" class="px-4 py-2 rounded-xl bg-iaNavy hover:bg-iaNavyLight text-white font-medium text-xs transition-colors">
+            Quote IDs &amp; Micro Print →
+          </button>
+        </div>
+      </div>
+      <div class="hidden lg:flex flex-col gap-3 max-w-xs">
+        <div class="studio-card rounded-2xl p-4 border-l-4 border-l-iaRed">
+          <div class="font-mono text-[10px] text-iaRed uppercase">High-Volume PVC &amp; Foil</div>
+          <div class="font-display font-bold text-sm text-white mt-0.5">1,500+ IDs &amp; Certificates Delivered</div>
+          <p class="text-xs text-slate-400 mt-1">Variable-data staff badges, UV-varnished business cards, and tamper-evident security labels.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ZONE 8: CLIENT PORTFOLIO & CASE STUDIES (FROM PROFILE PDF) (Z = -8000) -->
+    <section id="zone-8" class="zone-layer opacity-0 flex items-center justify-center">
+  <div class="studio-card ia-case-shell rounded-3xl w-full max-w-6xl border-t-4 border-t-iaRed">
+    <div class="ia-case-scroll custom-scroll">
+      <header class="ia-case-header">
+        <div>
+          <span class="ia-eyebrow">SELECTED WORK // TANZANIA</span>
+          <h2 class="font-display font-extrabold text-2xl sm:text-3xl text-white mt-1">Clients &amp; Case Studies</h2>
+          <p class="text-slate-300 text-sm mt-2 max-w-2xl">A closer look at the brands, organizations and events featured in the ImagingArts company profile.</p>
+        </div>
+        <div class="ia-case-header-mark">
+          <span class="ia-mark-line"></span>
+          <span>IMAGINGARTS<br><small>CREATIVE BRANDING</small></span>
+        </div>
+      </header>
+
+      <div class="ia-case-toolbar">
+        <div id="ia-case-filters" class="ia-case-filters" aria-label="Filter client projects">
+          <button class="ia-filter active" data-filter="All" type="button">All work</button>
+          <button class="ia-filter" data-filter="Corporate" type="button">Corporate</button>
+          <button class="ia-filter" data-filter="Education" type="button">Education</button>
+          <button class="ia-filter" data-filter="NGO & Community" type="button">NGO &amp; Community</button>
+          <button class="ia-filter" data-filter="Events" type="button">Events</button>
+          <button class="ia-filter" data-filter="Product Branding" type="button">Product Branding</button>
+          <button class="ia-filter" data-filter="Other" type="button">Other</button>
+        </div>
+        <span class="ia-case-count" id="ia-case-count">Selected projects</span>
+      </div>
+
+      <div id="ia-case-grid" class="ia-case-grid" aria-live="polite"></div>
+
+      <section class="ia-subsection">
+        <div class="ia-subsection-heading">
+          <div><span class="ia-eyebrow">PARTNER IDENTITIES</span><h3>Client &amp; Partner Logos</h3></div>
+          <p>Logos and the complete client wall as presented in the June 2026 profile.</p>
+        </div>
+        <div id="ia-logo-grid" class="ia-logo-grid"></div>
+        <button class="ia-spread-button" type="button" onclick="openProfileSpread('assets/images/profile-spreads/client-partner-wall.jpg','Client and partner wall from the ImagingArts profile')">
+          <span>View complete client wall</span><span aria-hidden="true">↗</span>
+        </button>
+      </section>
+
+      <section class="ia-subsection ia-profile-section">
+        <div class="ia-subsection-heading">
+          <div><span class="ia-eyebrow">COMPANY PROFILE VISUALS</span><h3>More from ImagingArts</h3></div>
+          <p>Additional photographs and visual elements from the profile, kept separate from project case studies.</p>
+        </div>
+        <div id="ia-profile-gallery" class="ia-profile-gallery"></div>
+      </section>
+
+      <footer class="ia-case-footer">
+        <span>IMAGINGARTS <i>·</i> CREATIVE BRANDING</span>
+        <span>WHITE BEACH PARK COMMERCIAL COMPLEX · MBEZI BEACH, DAR ES SALAAM</span>
+      </footer>
+    </div>
+  </div>
+</section>
+
+
+
+    <!-- ZONE 9: INTERACTIVE PRINT STUDIO & MBEZI BEACH HQ CONTACT (Z = -9000) -->
+    <section id="zone-9" class="zone-layer opacity-0 flex items-center justify-center">
+      <div class="studio-card rounded-3xl p-5 sm:p-7 max-w-5xl w-full max-h-[85vh] overflow-y-auto custom-scroll border-t-4 border-t-iaRed">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-white/10">
+          <div>
+            <span class="font-mono text-[11px] tracking-[0.2em] uppercase text-iaRed font-bold">IMAGINGARTS CREATIVE BRANDING // HQ</span>
+            <h2 class="font-display font-extrabold text-2xl sm:text-3xl text-white mt-0.5">
+              Start Your Print or Branding Project
+            </h2>
+          </div>
+          <div class="flex items-center gap-3">
+            <button type="button" onclick="toggleCurrency()" id="currency-toggle-btn" class="px-3 py-1.5 rounded-xl bg-iaNavy/70 border border-white/15 font-mono text-xs text-white hover:bg-iaNavyLight">
+              Currency: TZS / USD
+            </button>
+            <div class="text-right">
+              <div class="font-mono text-[10px] text-slate-400 uppercase">Estimated Tier</div>
+              <div id="quote-estimate-display" class="font-display font-extrabold text-xl sm:text-2xl text-iaRed">TZS 580,000+</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 mt-4">
+          <!-- Left Column: Official HQ, Legal & Delivery Details -->
+          <div class="p-4 rounded-2xl bg-iaNavy/25 border border-white/10 flex flex-col justify-between space-y-4 text-xs">
+            <div>
+              <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/15 border border-emerald-400/40 text-emerald-300 font-mono text-[10px] font-bold mb-3">
+                <span>✓ FREE DELIVERY IN MBEZI BEACH &amp; SURROUNDING AREAS</span>
+              </div>
+              <h3 class="font-display font-bold text-sm text-white uppercase tracking-wider mb-2">Our Dials &amp; Office</h3>
+              <p class="text-slate-300 leading-relaxed">
+                <strong>White Beach Park Commercial Complex</strong><br/>
+                First Floor, Office # 207/210, Mbezi Beach<br/>
+                P.O. Box 31902, Dar es Salaam, Tanzania
+              </p>
+              <div class="mt-2.5 space-y-1 font-mono text-[11px] text-slate-200">
+                <div>Mob: <a href="tel:+255716237714" class="text-iaRed hover:underline">+255 716 237 714</a> | <a href="tel:+255768725874" class="text-iaRed hover:underline">+255 768 725 874</a></div>
+                <div>Email: <a href="mailto:imagingarts@hotmail.com" class="text-blue-300 hover:underline">imagingarts@hotmail.com</a></div>
+                <div>Social: <span class="text-slate-400">@imagingarts_tz · IMAGINGARTS@imagingarts_tz</span></div>
+              </div>
+            </div>
+
+            <div class="pt-3 border-t border-white/10 font-mono text-[10px] text-slate-400 space-y-1">
+              <div class="text-white font-bold">ACCREDITED &amp; REGISTERED:</div>
+              <div>• Incorporation No: <span class="text-slate-200">488483</span></div>
+              <div>• Business License: <span class="text-slate-200">BL01396912025-2600010011</span></div>
+              <div>• TIN Number: <span class="text-slate-200">139-769-368</span></div>
+            </div>
+          </div>
+
+          <!-- Right 2 Columns: Interactive Configurator Form -->
+          <form id="print-quote-form" onsubmit="handleQuoteSubmit(event)" class="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="space-y-3">
+              <div>
+                <label class="block font-mono text-[11px] uppercase text-slate-400 mb-1">1. Service Pillar / Print Tier</label>
+                <select id="q-category" onchange="updateEstimate()" class="w-full px-3.5 py-2.5 rounded-xl bg-white/[0.06] border border-white/15 text-white text-sm focus:outline-none focus:border-iaRed">
+                  <option value="Giant & Large-Format Printing" class="bg-obsidian">01. Giant &amp; Large-Format (Billboards, Wraps, 3D Signs)</option>
+                  <option value="Publishing & Commercial Editorial" class="bg-obsidian">02. Publishing &amp; Editorial (Profiles, Books, Journals)</option>
+                  <option value="Packaging & Containers" class="bg-obsidian">03. Packaging &amp; Containers (Cartons, Pouches, Labels)</option>
+                  <option value="Marketing & Retail Collateral" class="bg-obsidian">04. Marketing, Retail, Web Design &amp; Events</option>
+                  <option value="Corporate Stationery & Office Essentials" class="bg-obsidian">05. Corporate Stationery &amp; NCR Books</option>
+                  <option value="Textiles & Promotional Merchandise" class="bg-obsidian">06. Textiles, Uniforms, Trophies &amp; Merch</option>
+                  <option value="Small & Micro-Format Printing" class="bg-obsidian">07. Small &amp; Micro Print (PVC IDs, Foil Cards, Holograms)</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block font-mono text-[11px] uppercase text-slate-400 mb-1">2. Material &amp; Finish</label>
+                <div class="grid grid-cols-2 gap-2" id="finish-buttons">
+                  <button type="button" onclick="selectFinish(this, 'Matte / Velvet Lamination')" class="finish-btn active-finish px-3 py-2 rounded-xl border border-iaRed bg-iaRed/20 text-white text-xs font-medium text-left transition-all">
+                    Matte / Velvet
+                  </button>
+                  <button type="button" onclick="selectFinish(this, '24K Metallic Foil + Emboss')" class="finish-btn px-3 py-2 rounded-xl border border-white/10 bg-white/[0.04] text-slate-300 text-xs font-medium text-left hover:border-white/30 transition-all">
+                    Foil + Emboss
+                  </button>
+                  <button type="button" onclick="selectFinish(this, 'Heavy Outdoor UV Vinyl / 3D Acrylic')" class="finish-btn px-3 py-2 rounded-xl border border-white/10 bg-white/[0.04] text-slate-300 text-xs font-medium text-left hover:border-white/30 transition-all">
+                    Outdoor Vinyl / 3D
+                  </button>
+                  <button type="button" onclick="selectFinish(this, 'PVC Card / Cotton Apparel')" class="finish-btn px-3 py-2 rounded-xl border border-white/10 bg-white/[0.04] text-slate-300 text-xs font-medium text-left hover:border-white/30 transition-all">
+                    PVC ID / Cotton
+                  </button>
+                </div>
+                <input type="hidden" id="q-finish" value="Matte / Velvet Lamination" />
+              </div>
+
+              <div class="grid grid-cols-2 gap-2.5">
+                <div>
+                  <label class="block font-mono text-[11px] uppercase text-slate-400 mb-1">3. Dimensions / Scope</label>
+                  <input type="text" id="q-dimensions" value="Standard / Custom" oninput="updateEstimate()" class="w-full px-3 py-2 rounded-xl bg-white/[0.06] border border-white/15 text-white text-sm focus:outline-none focus:border-iaRed" />
+                </div>
+                <div>
+                  <label class="block font-mono text-[11px] uppercase text-slate-400 mb-1">4. Qty (<span id="qty-label">100</span>)</label>
+                  <input type="range" id="q-qty" min="1" max="5000" value="100" oninput="updateEstimate()" class="w-full accent-iaRed mt-2 cursor-pointer" />
+                </div>
+              </div>
+            </div>
+
+            <div class="space-y-3 flex flex-col justify-between">
+              <div class="space-y-2.5">
+                <div>
+                  <label class="block font-mono text-[11px] uppercase text-slate-400 mb-1">Your Name / Organization</label>
+                  <input type="text" id="q-name" required placeholder="e.g. Jane Doe / Company Ltd" class="w-full px-3.5 py-2 rounded-xl bg-white/[0.06] border border-white/15 text-white text-sm focus:outline-none focus:border-iaRed" />
+                </div>
+                <div>
+                  <label class="block font-mono text-[11px] uppercase text-slate-400 mb-1">Phone (WhatsApp) or Email</label>
+                  <input type="text" id="q-contact" required placeholder="+255 7XX XXX XXX / email" class="w-full px-3.5 py-2 rounded-xl bg-white/[0.06] border border-white/15 text-white text-sm focus:outline-none focus:border-iaRed" />
+                </div>
+                <div>
+                  <label class="block font-mono text-[11px] uppercase text-slate-400 mb-1">Project Specifications</label>
+                  <textarea id="q-notes" rows="2" placeholder="Tell us about your branding, printing, signage, or event needs..." class="w-full px-3.5 py-2 rounded-xl bg-white/[0.06] border border-white/15 text-white text-sm focus:outline-none focus:border-iaRed"></textarea>
+                </div>
+              </div>
+
+              <button type="submit" class="w-full py-3 rounded-2xl bg-gradient-to-r from-iaNavy via-iaRed to-iaRedDark text-white font-display font-extrabold text-sm tracking-wide hover:brightness-110 transition-all shadow-lg shadow-iaRed/25">
+                Send Project Brief to ImagingArts
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <div id="quote-success-box" class="hidden mt-4 p-4 rounded-2xl bg-emerald-500/15 border border-emerald-400/40 text-emerald-200 text-sm flex items-center justify-between gap-4">
+          <div>
+            <strong class="font-display text-white block">Inquiry Logged for ImagingArts Mbezi Beach HQ!</strong>
+            <span id="quote-success-text" class="text-xs text-emerald-200/90">Our creative branding team will reach out shortly.</span>
+          </div>
+          <button onclick="resetQuoteForm()" class="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-mono shrink-0">
+            New Quote
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Bottom Progress & Depth Bar -->
+  <footer class="fixed bottom-0 left-0 right-0 z-50 px-4 sm:px-8 py-3 pointer-events-none">
+    <div class="max-w-4xl mx-auto flex flex-col gap-1.5">
+      <div class="flex items-center justify-between text-[10px] font-mono text-slate-400">
+        <span>00 · WE THINK BIG</span>
+        <span id="footer-hint" class="text-slate-300">SCROLL OR SWIPE TO EXPLORE ALL 7 PRINT TIERS &amp; CLIENT WORK</span>
+        <span>09 · MBEZI BEACH HQ</span>
+      </div>
+      <div id="scrubber-track" class="pointer-events-auto relative h-2 w-full rounded-full bg-white/10 overflow-hidden cursor-pointer backdrop-blur-sm">
+        <div id="scrubber-fill" class="h-full w-0 brand-bar rounded-full transition-all duration-75"></div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Company Profile, Vision/Mission & Material Spec Inspector Modal -->
+  <div id="inspector-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+    <div class="studio-card rounded-3xl max-w-xl w-full p-6 sm:p-7 relative border border-white/20 max-h-[86vh] overflow-y-auto custom-scroll border-t-4 border-t-iaRed">
+      <button onclick="closeInspector()" class="absolute top-5 right-5 w-8 h-8 rounded-full bg-white/10 hover:bg-iaRed flex items-center justify-center text-white text-sm transition-colors">
+        ✕
+      </button>
+      <div id="inspector-badge" class="inline-block px-3 py-1 rounded-full bg-iaRed/20 text-iaRed font-mono text-[11px] font-bold mb-3">
+        IMAGINGARTS PROFILE
+      </div>
+      <h3 id="inspector-title" class="font-display font-extrabold text-2xl text-white mb-2">
+        Tier Specifications
+      </h3>
+      <p id="inspector-desc" class="text-sm text-slate-300 leading-relaxed mb-5">
+        Detailed print methodology.
+      </p>
+      <div id="inspector-specs" class="space-y-2.5 mb-6">
+        <!-- Populated dynamically -->
+      </div>
+      <div class="flex justify-end gap-3">
+        <button onclick="closeInspector()" class="px-4 py-2 rounded-xl bg-white/10 text-white text-xs font-medium hover:bg-white/20">
+          Close
+        </button>
+        <button id="inspector-quote-btn" class="px-5 py-2 rounded-xl bg-iaRed text-white font-display font-bold text-xs hover:bg-iaRedDark">
+          Configure This Service
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /**
+     * ImagingArts — Creative Branding | 3D Z-Axis Scrollytelling Engine
+     */
+
+    const ZONES = [
+      { id: 0, z: 0,     label: 'CREATIVE BRANDING HQ',    title: 'We Think BIG' },
+      { id: 1, z: -1000, label: '01 · LARGE FORMAT & 3D',  title: 'Giant & Large-Format' },
+      { id: 2, z: -2000, label: '02 · PUBLISHING & BOOKS', title: 'Publishing & Editorial' },
+      { id: 3, z: -3000, label: '03 · PACKAGING & LABELS', title: 'Packaging & Containers' },
+      { id: 4, z: -4000, label: '04 · RETAIL, WEB & EVENTS',title: 'Marketing & Events' },
+      { id: 5, z: -5000, label: '05 · OFFICE STATIONERY',  title: 'Corporate Stationery' },
+      { id: 6, z: -6000, label: '06 · APPAREL & TROPHIES', title: 'Textiles & Merch' },
+      { id: 7, z: -7000, label: '07 · MICRO & PVC IDS',    title: 'Micro Print & Security' },
+      { id: 8, z: -8000, label: '08 · CLIENT SHOWCASE',    title: 'Case Studies' },
+      { id: 9, z: -9000, label: '09 · MBEZI BEACH STUDIO', title: 'Print & Brand Studio' }
+    ];
+
+    const MIN_Z = -9000;
+    const MAX_Z = 0;
+
+    let targetZ = 0;
+    let currentZ = 0;
+    let mouseX = 0;
+    let mouseY = 0;
+    let targetMouseX = 0;
+    let targetMouseY = 0;
+    let useTZS = true;
+
+    function createPrintTexture({ pattern = 'tier1' }) {
+      const canvas = document.createElement('canvas');
+      canvas.width = 1024;
+      canvas.height = 1024;
+      const ctx = canvas.getContext('2d');
+
+      // Deep Navy / Obsidian Base matching ImagingArts Brand Identity
+      ctx.fillStyle = '#0D0E12';
+      ctx.fillRect(0, 0, 1024, 1024);
+
+      // Top Brand Stripe (Navy + Crimson Red)
+      ctx.fillStyle = '#162A64';
+      ctx.fillRect(0, 0, 680, 32);
+      ctx.fillStyle = '#E31E24';
+      ctx.fillRect(680, 0, 344, 32);
+
+      // Header Tag
+      ctx.fillStyle = '#E31E24';
+      ctx.font = '700 32px "JetBrains Mono", monospace';
+      ctx.fillText('IMAGINGARTS // CREATIVE BRANDING', 60, 110);
+
+      if (pattern === 'tier1') {
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = '800 112px "Space Grotesk", sans-serif';
+        ctx.fillText('WE THINK BIG', 60, 310);
+        ctx.fillStyle = '#E31E24';
+        ctx.fillText('GIANT FORMAT', 60, 430);
+        ctx.fillStyle = '#94A3B8';
+        ctx.font = '500 36px "JetBrains Mono", monospace';
+        ctx.fillText('BILLBOARDS, FLEET WRAPS & 3D SIGNS', 60, 530);
+      } else if (pattern === 'tier2') {
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = '800 105px "Space Grotesk", sans-serif';
+        ctx.fillText('PUBLISHING', 60, 310);
+        ctx.fillStyle = '#3B66E0';
+        ctx.fillText('& PROFILES', 60, 430);
+        ctx.fillStyle = '#94A3B8';
+        ctx.font = '500 36px "JetBrains Mono", monospace';
+        ctx.fillText('COMPANY PROFILES, BOOKS & JOURNALS', 60, 530);
+      } else if (pattern === 'tier3') {
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = '800 105px "Space Grotesk", sans-serif';
+        ctx.fillText('PACKAGING', 60, 310);
+        ctx.fillStyle = '#E31E24';
+        ctx.fillText('& CONTAINERS', 60, 430);
+        ctx.fillStyle = '#94A3B8';
+        ctx.font = '500 36px "JetBrains Mono", monospace';
+        ctx.fillText('CARTONS, POUCHES & PRODUCT LABELS', 60, 530);
+      } else if (pattern === 'tier4') {
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = '800 100px "Space Grotesk", sans-serif';
+        ctx.fillText('EVENTS, WEB', 60, 310);
+        ctx.fillStyle = '#3B66E0';
+        ctx.fillText('& COLLATERAL', 60, 430);
+        ctx.fillStyle = '#94A3B8';
+        ctx.font = '500 36px "JetBrains Mono", monospace';
+        ctx.fillText('FLYERS, POS, VIDEO & STAGE SETUP', 60, 530);
+      } else if (pattern === 'tier5') {
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = '800 95px "Space Grotesk", sans-serif';
+        ctx.fillText('STATIONERY', 60, 310);
+        ctx.fillStyle = '#E31E24';
+        ctx.fillText('& NCR BOOKS', 60, 430);
+        ctx.fillStyle = '#94A3B8';
+        ctx.font = '500 36px "JetBrains Mono", monospace';
+        ctx.fillText('LETTERHEADS, DIARIES & OFFICE SUPPLY', 60, 530);
+      } else if (pattern === 'tier6') {
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = '800 100px "Space Grotesk", sans-serif';
+        ctx.fillText('APPAREL &', 60, 310);
+        ctx.fillStyle = '#3B66E0';
+        ctx.fillText('PROMO MERCH', 60, 430);
+        ctx.fillStyle = '#94A3B8';
+        ctx.font = '500 36px "JetBrains Mono", monospace';
+        ctx.fillText('UNIFORMS, T-SHIRTS, TROPHIES & MUGS', 60, 530);
+      } else if (pattern === 'tier7') {
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = '800 95px "Space Grotesk", sans-serif';
+        ctx.fillText('MICRO PRINT', 60, 310);
+        ctx.fillStyle = '#E31E24';
+        ctx.fillText('& PVC STAFF IDs', 60, 430);
+        ctx.fillStyle = '#94A3B8';
+        ctx.font = '500 36px "JetBrains Mono", monospace';
+        ctx.fillText('FOIL CARDS, HOLOGRAMS & CERTIFICATES', 60, 530);
+      } else if (pattern === 'tier8') {
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = '800 95px "Space Grotesk", sans-serif';
+        ctx.fillText('TANZANIA', 60, 310);
+        ctx.fillStyle = '#E31E24';
+        ctx.fillText('CLIENT IMPACT', 60, 430);
+        ctx.fillStyle = '#94A3B8';
+        ctx.font = '500 36px "JetBrains Mono", monospace';
+        ctx.fillText('ESON · SF SMART ENERGY · MINE · POCET', 60, 530);
+      }
+
+      // Bottom Footer Stamp
+      ctx.fillStyle = '#FFFFFF';
+      ctx.font = '600 28px "JetBrains Mono", monospace';
+      ctx.fillText('MBEZI BEACH, DAR ES SALAAM  |  +255 716 237 714', 60, 940);
+
+      // Subtle Halftone Texture
+      ctx.fillStyle = 'rgba(255,255,255,0.03)';
+      for (let i = 0; i < 3500; i++) {
+        ctx.fillRect(Math.random() * 1024, Math.random() * 1024, 2, 2);
+      }
+
+      const texture = new THREE.CanvasTexture(canvas);
+      texture.anisotropy = 4;
+      return texture;
+    }
+
+    let scene, camera, renderer;
+    const interactiveMeshes = [];
+    let inkParticles;
+
+    function initThreeWorld() {
+      const canvas = document.getElementById('webgl-canvas');
+      scene = new THREE.Scene();
+      scene.background = new THREE.Color('#0D0E12');
+      scene.fog = new THREE.FogExp2('#0D0E12', 0.00072);
+
+      camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 1, 4000);
+      camera.position.set(0, 0, 260);
+
+      renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.65);
+      scene.add(ambientLight);
+
+      const navyLight = new THREE.PointLight(0x25449C, 2.8, 3500);
+      navyLight.position.set(-500, 320, 200);
+      scene.add(navyLight);
+
+      const redLight = new THREE.PointLight(0xE31E24, 2.5, 3500);
+      redLight.position.set(500, -250, -1800);
+      scene.add(redLight);
+
+      const whiteLight = new THREE.PointLight(0xFFFFFF, 1.8, 3500);
+      whiteLight.position.set(0, 400, -5200);
+      scene.add(whiteLight);
+
+      // Textures for Zones 1–8
+      const tex1 = createPrintTexture({ pattern: 'tier1' });
+      const tex2 = createPrintTexture({ pattern: 'tier2' });
+      const tex3 = createPrintTexture({ pattern: 'tier3' });
+      const tex4 = createPrintTexture({ pattern: 'tier4' });
+      const tex5 = createPrintTexture({ pattern: 'tier5' });
+      const tex6 = createPrintTexture({ pattern: 'tier6' });
+      const tex7 = createPrintTexture({ pattern: 'tier7' });
+      const tex8 = createPrintTexture({ pattern: 'tier8' });
+
+      // Zone 0: ImagingArts Navy & Crimson Geometric Orbit Rings
+      const heroGroup = new THREE.Group();
+      heroGroup.position.set(0, 0, -180);
+      const ringGeo = new THREE.TorusGeometry(195, 2.5, 16, 100);
+      const ringNavy = new THREE.Mesh(ringGeo, new THREE.MeshStandardMaterial({ color: 0x25449C, emissive: 0x162A64, emissiveIntensity: 0.8 }));
+      ringNavy.rotation.x = 0.52;
+      heroGroup.add(ringNavy);
+      const ringRed = new THREE.Mesh(ringGeo, new THREE.MeshStandardMaterial({ color: 0xE31E24, emissive: 0xE31E24, emissiveIntensity: 0.6 }));
+      ringRed.rotation.y = 0.62;
+      ringRed.scale.setScalar(1.13);
+      heroGroup.add(ringRed);
+      scene.add(heroGroup);
+      interactiveMeshes.push({ mesh: heroGroup, speed: 0.004 });
+
+      // Zone 1: Giant & Large Format (-1000)
+      const group1 = new THREE.Group();
+      group1.position.set(210, 10, -1000);
+      const b1 = new THREE.Mesh(new THREE.BoxGeometry(330, 195, 14), [
+        new THREE.MeshStandardMaterial({ color: 0x162A64 }), new THREE.MeshStandardMaterial({ color: 0x162A64 }),
+        new THREE.MeshStandardMaterial({ color: 0xE31E24 }), new THREE.MeshStandardMaterial({ color: 0x162A64 }),
+        new THREE.MeshStandardMaterial({ map: tex1, roughness: 0.28 }), new THREE.MeshStandardMaterial({ color: 0x0D0E12 })
+      ]);
+      group1.add(b1);
+      group1.rotation.y = -0.3;
+      scene.add(group1);
+      interactiveMeshes.push({ mesh: group1, speed: 0.0022 });
+
+      // Zone 2: Editorial & Company Profiles (-2000)
+      const group2 = new THREE.Group();
+      group2.position.set(-210, 0, -2000);
+      const bookMesh = new THREE.Mesh(new THREE.BoxGeometry(165, 215, 44), new THREE.MeshStandardMaterial({ map: tex2, roughness: 0.25 }));
+      group2.add(bookMesh);
+      group2.rotation.y = 0.35;
+      scene.add(group2);
+      interactiveMeshes.push({ mesh: group2, speed: 0.003 });
+
+      // Zone 3: Packaging & Containers (-3000)
+      const group3 = new THREE.Group();
+      group3.position.set(210, 0, -3000);
+      const boxMesh = new THREE.Mesh(new THREE.BoxGeometry(175, 175, 175), new THREE.MeshStandardMaterial({ map: tex3, roughness: 0.3 }));
+      group3.add(boxMesh);
+      group3.rotation.y = -0.25;
+      scene.add(group3);
+      interactiveMeshes.push({ mesh: group3, speed: 0.004 });
+
+      // Zone 4: Marketing, Events & Web (-4000)
+      const group4 = new THREE.Group();
+      group4.position.set(-210, 0, -4000);
+      const flyerMesh = new THREE.Mesh(new THREE.BoxGeometry(155, 215, 8), new THREE.MeshStandardMaterial({ map: tex4, roughness: 0.35 }));
+      group4.add(flyerMesh);
+      group4.rotation.y = 0.25;
+      scene.add(group4);
+      interactiveMeshes.push({ mesh: group4, speed: 0.003 });
+
+      // Zone 5: Corporate Stationery (-5000)
+      const group5 = new THREE.Group();
+      group5.position.set(210, 0, -5000);
+      const stationeryMesh = new THREE.Mesh(new THREE.BoxGeometry(195, 145, 12), new THREE.MeshStandardMaterial({ map: tex5, roughness: 0.3 }));
+      group5.add(stationeryMesh);
+      group5.rotation.y = -0.3;
+      scene.add(group5);
+      interactiveMeshes.push({ mesh: group5, speed: 0.0035 });
+
+      // Zone 6: Textiles & Promotional Merch (-6000)
+      const group6 = new THREE.Group();
+      group6.position.set(-210, 0, -6000);
+      const mugMesh = new THREE.Mesh(new THREE.CylinderGeometry(72, 66, 185, 32), new THREE.MeshStandardMaterial({ map: tex6, roughness: 0.22 }));
+      group6.add(mugMesh);
+      group6.rotation.y = 0.4;
+      scene.add(group6);
+      interactiveMeshes.push({ mesh: group6, speed: 0.005 });
+
+      // Zone 7: Small & Micro Print (-7000)
+      const group7 = new THREE.Group();
+      group7.position.set(210, 0, -7000);
+      const cardMesh = new THREE.Mesh(new THREE.BoxGeometry(225, 138, 6), new THREE.MeshStandardMaterial({ map: tex7, metalness: 0.55, roughness: 0.2 }));
+      group7.add(cardMesh);
+      group7.rotation.y = -0.2;
+      scene.add(group7);
+      interactiveMeshes.push({ mesh: group7, speed: 0.0055 });
+
+      // Zone 8: Client Showcase Monolith (-8000)
+      const group8 = new THREE.Group();
+      group8.position.set(0, 0, -8000);
+      const showcaseMesh = new THREE.Mesh(new THREE.BoxGeometry(280, 175, 10), new THREE.MeshStandardMaterial({ map: tex8, roughness: 0.25 }));
+      group8.add(showcaseMesh);
+      scene.add(group8);
+      interactiveMeshes.push({ mesh: group8, speed: 0.0025 });
+
+      // Brand-Tinted Particles (Navy, Crimson Red, White + CMYK Registration Sparks)
+      const particleCount = 1900;
+      const pGeo = new THREE.BufferGeometry();
+      const positions = new Float32Array(particleCount * 3);
+      const colors = new Float32Array(particleCount * 3);
+      const palette = [
+        new THREE.Color('#25449C'),
+        new THREE.Color('#E31E24'),
+        new THREE.Color('#FFFFFF'),
+        new THREE.Color('#00E5FF'),
+        new THREE.Color('#FFD600')
+      ];
+
+      for (let i = 0; i < particleCount; i++) {
+        positions[i * 3]     = (Math.random() - 0.5) * 2100;
+        positions[i * 3 + 1] = (Math.random() - 0.5) * 1450;
+        positions[i * 3 + 2] = -Math.random() * 9600 + 300;
+        const col = palette[i % palette.length];
+        colors[i * 3] = col.r;
+        colors[i * 3 + 1] = col.g;
+        colors[i * 3 + 2] = col.b;
+      }
+
+      pGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+      pGeo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+      inkParticles = new THREE.Points(pGeo, new THREE.PointsMaterial({ size: 4.5, vertexColors: true, transparent: true, opacity: 0.78 }));
+      scene.add(inkParticles);
+    }
+
+    function setupNavigationControls() {
+      window.addEventListener('wheel', (e) => {
+        if (e.target.closest('.custom-scroll')) return;
+        targetZ -= e.deltaY * 1.1;
+        targetZ = Math.max(MIN_Z, Math.min(MAX_Z, targetZ));
+      }, { passive: true });
+
+      let touchStartY = 0;
+      window.addEventListener('touchstart', (e) => {
+        touchStartY = e.touches[0].clientY;
+      }, { passive: true });
+
+      window.addEventListener('touchmove', (e) => {
+        if (e.target.closest('.custom-scroll')) return;
+        const touchY = e.touches[0].clientY;
+        const deltaY = touchStartY - touchY;
+        touchStartY = touchY;
+        targetZ -= deltaY * 2.5;
+        targetZ = Math.max(MIN_Z, Math.min(MAX_Z, targetZ));
+      }, { passive: true });
+
+      window.addEventListener('keydown', (e) => {
+        if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) return;
+        if (e.key === 'ArrowDown' || e.key === 'PageDown') {
+          targetZ = Math.max(MIN_Z, targetZ - 450);
+        } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
+          targetZ = Math.min(MAX_Z, targetZ + 450);
+        }
+      });
+
+      window.addEventListener('mousemove', (e) => {
+        targetMouseX = (e.clientX / window.innerWidth) * 2 - 1;
+        targetMouseY = -(e.clientY / window.innerHeight) * 2 + 1;
+      });
+
+      const scrubber = document.getElementById('scrubber-track');
+      scrubber.addEventListener('click', (e) => {
+        const rect = scrubber.getBoundingClientRect();
+        const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+        targetZ = ratio * MIN_Z;
+      });
+
+      window.addEventListener('resize', () => {
+        if (!camera || !renderer) return;
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      });
+    }
+
+    function jumpToZone(zoneIndex) {
+      const zone = ZONES[zoneIndex];
+      if (zone) targetZ = zone.z;
+    }
+
+    function animate() {
+      requestAnimationFrame(animate);
+      currentZ += (targetZ - currentZ) * 0.085;
+      mouseX += (targetMouseX - mouseX) * 0.06;
+      mouseY += (targetMouseY - mouseY) * 0.06;
+
+      if (camera && renderer && scene) {
+        camera.position.z = currentZ + 260;
+        camera.position.x = mouseX * 35;
+        camera.position.y = mouseY * 22;
+        camera.lookAt(mouseX * 10, mouseY * 6, currentZ - 350);
+
+        interactiveMeshes.forEach((item) => {
+          item.mesh.rotation.y += item.speed;
+          item.mesh.rotation.x = mouseY * 0.12;
+        });
+
+        if (inkParticles) inkParticles.rotation.z += 0.0005;
+
+        renderer.render(scene, camera);
+      }
+
+      updateSpatialUI();
+    }
+
+    function updateSpatialUI() {
+      const progress = Math.abs(currentZ / MIN_Z);
+      const scrubberFill = document.getElementById('scrubber-fill');
+      if (scrubberFill) scrubberFill.style.width = `${(progress * 100).toFixed(1)}%`;
+
+      let closestZone = ZONES[0];
+      let minDist = Infinity;
+
+      ZONES.forEach((zone) => {
+        const dist = Math.abs(currentZ - zone.z);
+        if (dist < minDist) {
+          minDist = dist;
+          closestZone = zone;
+        }
+
+        const el = document.getElementById(`zone-${zone.id}`);
+        if (!el) return;
+
+        const deltaZ = currentZ - zone.z;
+        const absDelta = Math.abs(deltaZ);
+
+        if (absDelta > 750) {
+          el.style.opacity = '0';
+          el.style.pointerEvents = 'none';
+          el.classList.remove('active-zone');
+        } else {
+          const normalized = absDelta / 750;
+          const opacity = Math.max(0, 1 - Math.pow(normalized, 1.8));
+          const scale = deltaZ >= 0 ? 1 - (deltaZ / 750) * 0.35 : 1 + (Math.abs(deltaZ) / 750) * 0.4;
+          const blurPx = normalized * 10;
+
+          el.style.opacity = opacity.toFixed(3);
+          el.style.transform = `scale(${scale.toFixed(3)}) translate3d(${(-mouseX * 8).toFixed(1)}px, ${(mouseY * 6).toFixed(1)}px, 0)`;
+          el.style.filter = blurPx > 0.4 ? `blur(${blurPx.toFixed(1)}px)` : 'none';
+
+          if (absDelta < 350) {
+            el.classList.add('active-zone');
+            el.style.pointerEvents = 'auto';
+          } else {
+            el.classList.remove('active-zone');
+            el.style.pointerEvents = 'none';
+          }
+        }
+      });
+
+      const scaleLabelEl = document.getElementById('hud-scale-label');
+      if (scaleLabelEl) scaleLabelEl.textContent = closestZone.label;
+
+      document.querySelectorAll('.nav-pill').forEach((pill) => {
+        const idx = Number(pill.getAttribute('data-nav'));
+        const dot = pill.querySelector('span:last-child');
+        const text = pill.querySelector('span:first-child');
+        if (idx === closestZone.id) {
+          pill.classList.add('bg-white/15', 'border-iaRed/70');
+          pill.classList.remove('bg-white/[0.04]', 'border-white/10');
+          if (dot) dot.className = 'w-2.5 h-2.5 rounded-full bg-iaRed';
+          if (text) text.className = 'font-mono text-[9px] tracking-wider uppercase text-white font-bold';
+        } else {
+          pill.classList.remove('bg-white/15', 'border-iaRed/70');
+          pill.classList.add('bg-white/[0.04]', 'border-white/10');
+          if (dot) dot.className = 'w-2 h-2 rounded-full bg-slate-500';
+          if (text) text.className = 'font-mono text-[9px] tracking-wider uppercase text-slate-400';
+        }
+      });
+    }
+
+    const INSPECTOR_DATA = {
+      about: {
+        badge: 'IMAGINGARTS COMPANY PROFILE // JUNE 2026',
+        title: 'We Think BIG for Your Brand!',
+        desc: 'ImagingArts specializes in corporate branding (interior and exterior), 2D and 3D signs, billboards, banners, general printing and supply, promotional items, web design and development, corporate photography and videography, and events management. The office is located at White Beach Park Commercial Complex, First Floor, Office #207/210, Mbezi Beach, Dar es Salaam.',
+        preset: 'Giant & Large-Format Printing',
+        specs: [
+          ['Vision', 'To empower brands, organizations, and individuals through strategic visual storytelling—delivering photography, videography, and design solutions that inspire trust, preserve legacy, and drive meaningful growth.'],
+          ['Mission', 'To be Tanzania’s leading creative hub where art meets strategy, shaping narratives that transcend borders and generations, and positioning ImagingArts as a trusted partner in branding, communication, and innovation.'],
+          ['Core Value', 'Close to our customers every time, everywhere.'],
+          ['Our Approach', 'Build strong client relationships, listen closely, understand each client’s personality and objectives, and refine their needs into effective, creative solutions—even within fast-paced timelines.'],
+          ['Why ImagingArts', 'Quality products and service at competitive prices, with efficient and prompt delivery.'],
+          ['Delivery Means', 'Free delivery in Mbezi Beach and surrounding areas. Delivery to other locations can be discussed.'],
+          ['Goals', 'Invest in quality management, build a strong reputation in areas of specialization, and become a key player in the industry.'],
+          ['Legal Accreditation', 'Certificate of Incorporation No. 488483 | Business License No. BL01396912025-2600010011 | TIN 139-769-368']
+        ]
+      },
+      tier1: {
+        badge: 'TIER 01 // GIANT & EXTERIOR BRANDING',
+        title: 'Giant & Large-Format Printing + 2D/3D Signs',
+        desc: 'Wide-format inkjet printing, 3D fabrication, and vehicle wraps engineered for maximum outdoor visibility.',
+        preset: 'Giant & Large-Format Printing',
+        specs: [
+          ['Signage & Wraps', 'Billboards, Building Wraps, Vehicle & Truck Wraps, 2D & 3D Signs, Road Directional Signs'],
+          ['Exhibitions & Flags', 'Trade Show Booths, Press Backdrops, Step-and-Repeat Banners, Institutional & Feather Flags'],
+          ['Substrates', 'Cast Air-Release Vinyl, Mesh Banners, PVC, Acrylic, Aluminum Composite']
+        ]
+      },
+      tier2: {
+        badge: 'TIER 02 // PUBLISHING & EDITORIAL',
+        title: 'Publishing, Books & Company Profiles',
+        desc: 'High-speed offset and digital presses for multi-page publications, corporate profiles, and conference journals.',
+        preset: 'Publishing & Commercial Editorial',
+        specs: [
+          ['Publications', 'Company Profiles, Hardcover & Paperback Books, Glossy Magazines, Catalogs, Manuals'],
+          ['Binding Options', 'Smyth-Sewn Hardcover, PUR Perfect Binding, Saddle Stitch, Wire-O'],
+          ['Track Record', '500+ Company Profiles for IZ Engineering & Program Journals for MINE Foundation']
+        ]
+      },
+      tier3: {
+        badge: 'TIER 03 // PACKAGING & CONTAINERS',
+        title: 'Packaging, Cartons & Product Labels',
+        desc: 'Structural packaging design and durable printing across cardboard, plastic, metal, and glass.',
+        preset: 'Packaging & Containers',
+        specs: [
+          ['Packaging Lines', 'Corrugated Shipping Boxes, Folding Cartons, Stand-Up Pouches, Shrink Sleeves, Cups'],
+          ['Industrial & Retail', 'Battery Casing & Labels (ESON Super Battery), Cosmetics, Foods & Disposable Cups'],
+          ['Finishes', 'UV Gloss/Matte Varnish, Foil Stamping, Embossing, Die-Cut Windows']
+        ]
+      },
+      tier4: {
+        badge: 'TIER 04 // MARKETING, EVENTS & WEB',
+        title: 'Marketing Collateral, Events & Web Design',
+        desc: 'Commercial sheet-fed printing integrated with full Congress Management, Corporate Photography/Videography, and Responsive Web Development.',
+        preset: 'Marketing & Retail Collateral',
+        specs: [
+          ['Print Collateral', 'Flyers, Tri-Fold Brochures, POS Standees, Waterproof Menus, Wall & Desk Calendars'],
+          ['Events Management', 'Participant Registration, Stage Setup, Press Banners, Front-Desk & Exhibition Logistics'],
+          ['Digital & Media', 'Responsive Corporate Websites, Product Photography & After-Event Documentary Films']
+        ]
+      },
+      tier5: {
+        badge: 'TIER 05 // CORPORATE STATIONERY',
+        title: 'Corporate Stationery & Unlimited Office Supply',
+        desc: 'Matching corporate identity sets, NCR books, and continuous office/school supply contracts.',
+        preset: 'Corporate Stationery & Office Essentials',
+        specs: [
+          ['Identity & Stamps', 'Letterheads, Envelopes, Presentation Folders, Digital & Self-Inking Stamps'],
+          ['Business Forms', 'Carbonless (NCR) Invoice Books, Receipts, Delivery Notes & Packing Slips'],
+          ['Notebooks & Paper', 'Branded Spiral Notebooks, Executive Diaries, Legal Pads & Bulk Double A Reams']
+        ]
+      },
+      tier6: {
+        badge: 'TIER 06 // TEXTILES & PROMO MERCH',
+        title: 'Apparel, Uniforms, Trophies & Hard Goods',
+        desc: 'Screen printing, embroidery, sublimation, and rotary UV printing on textiles and 3D promotional items.',
+        preset: 'Textiles & Promotional Merchandise',
+        specs: [
+          ['Apparel & Decor', 'Polo Shirts, Event T-Shirts, Hoodies, School/Staff Uniforms, Caps, Curtains & Pillows'],
+          ['Hard Goods & Awards', 'Ceramic Mugs, Water Bottles, Executive Pens, Keychains, Phone Cases & Custom Trophies'],
+          ['Track Record', '100+ Mwana Kigosi Camp T-Shirts & Zanzibar Cake Festival Participant Uniforms']
+        ]
+      },
+      tier7: {
+        badge: 'TIER 07 // SMALL & MICRO-FORMAT PRINT',
+        title: 'PVC Staff IDs, Foil Cards & Micro Security',
+        desc: 'High-precision 2400 DPI printing for identification, certificates, product tracking, and anti-counterfeit security.',
+        preset: 'Small & Micro-Format Printing',
+        specs: [
+          ['Cards & Badges', 'Embossed & Foil Business Cards, Laminated PVC Staff & Conference IDs (1,500+ Delivered)'],
+          ['Certificates & Tickets', 'Graduation & Award Certificates, Event Tickets, Boarding Passes & Tyvek Wristbands'],
+          ['Security & Pharma', 'Tamper-Evident Holograms, Banknotes, Stamps, Barcodes & Thin Pharmaceutical Box Inserts']
+        ]
+      }
+    };
+
+    function openInspector(key) {
+      const data = INSPECTOR_DATA[key] || INSPECTOR_DATA.about;
+      document.getElementById('inspector-badge').textContent = data.badge;
+      document.getElementById('inspector-title').textContent = data.title;
+      document.getElementById('inspector-desc').textContent = data.desc;
+
+      const specsContainer = document.getElementById('inspector-specs');
+      specsContainer.innerHTML = data.specs.map(([label, val]) => `
+        <div class="p-3 rounded-xl bg-white/[0.04] border border-white/10 flex flex-col gap-1">
+          <span class="font-mono text-[10px] uppercase text-iaRed font-bold">${label}</span>
+          <span class="text-xs sm:text-sm font-medium text-white leading-snug">${val}</span>
+        </div>
+      `).join('');
+
+      const quoteBtn = document.getElementById('inspector-quote-btn');
+      quoteBtn.onclick = () => {
+        closeInspector();
+        selectQuotePreset(data.preset);
+      };
+
+      const modal = document.getElementById('inspector-modal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeInspector() {
+      const modal = document.getElementById('inspector-modal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function selectQuotePreset(categoryName) {
+      const select = document.getElementById('q-category');
+      if (select) {
+        select.value = categoryName;
+        updateEstimate();
+      }
+      jumpToZone(9);
+    }
+
+    function selectFinish(btn, finishValue) {
+      document.getElementById('q-finish').value = finishValue;
+      document.querySelectorAll('.finish-btn').forEach((el) => {
+        el.classList.remove('border-iaRed', 'bg-iaRed/20', 'text-white');
+        el.classList.add('border-white/10', 'bg-white/[0.04]', 'text-slate-300');
+      });
+      btn.classList.remove('border-white/10', 'bg-white/[0.04]', 'text-slate-300');
+      btn.classList.add('border-iaRed', 'bg-iaRed/20', 'text-white');
+      updateEstimate();
+    }
+
+    function toggleCurrency() {
+      useTZS = !useTZS;
+      updateEstimate();
+    }
+
+    function updateEstimate() {
+      const category = document.getElementById('q-category').value;
+      const finish = document.getElementById('q-finish').value;
+      const qty = Number(document.getElementById('q-qty').value);
+      document.getElementById('qty-label').textContent = qty.toLocaleString();
+
+      let baseUSD = 3.5;
+      if (category.includes('Giant')) baseUSD = 45;
+      else if (category.includes('Publishing')) baseUSD = 12;
+      else if (category.includes('Packaging')) baseUSD = 5.5;
+      else if (category.includes('Marketing')) baseUSD = 1.5;
+      else if (category.includes('Corporate')) baseUSD = 2.8;
+      else if (category.includes('Textiles')) baseUSD = 11;
+      else if (category.includes('Small & Micro')) baseUSD = 0.6;
+
+      if (finish.includes('Foil')) baseUSD *= 1.35;
+      if (finish.includes('Vinyl')) baseUSD *= 1.25;
+
+      const discount = qty > 2000 ? 0.52 : qty > 500 ? 0.72 : qty > 50 ? 0.88 : 1.0;
+      const lowUSD = Math.max(30, Math.round(baseUSD * qty * discount * 0.85));
+      const highUSD = Math.round(lowUSD * 1.28);
+
+      const displayEl = document.getElementById('quote-estimate-display');
+      if (useTZS) {
+        const rate = 2650;
+        const lowTZS = Math.round((lowUSD * rate) / 5000) * 5000;
+        const highTZS = Math.round((highUSD * rate) / 5000) * 5000;
+        displayEl.textContent = `TZS ${lowTZS.toLocaleString()} — ${highTZS.toLocaleString()}`;
+      } else {
+        displayEl.textContent = `$${lowUSD.toLocaleString()} — $${highUSD.toLocaleString()} USD`;
+      }
+    }
+
+    function handleQuoteSubmit(e) {
+      e.preventDefault();
+      const name = document.getElementById('q-name').value;
+      const category = document.getElementById('q-category').value;
+      const qty = document.getElementById('q-qty').value;
+      const finish = document.getElementById('q-finish').value;
+
+      const successBox = document.getElementById('quote-success-box');
+      const successText = document.getElementById('quote-success-text');
+      successText.textContent = `Asante, ${name}! Configured ${qty} units of "${category}" (${finish}). Our Mbezi Beach team (+255 716 237 714) will respond promptly.`;
+      successBox.classList.remove('hidden');
+    }
+
+    function resetQuoteForm() {
+      document.getElementById('print-quote-form').reset();
+      document.getElementById('quote-success-box').classList.add('hidden');
+      updateEstimate();
+    }
+
+    let introTimer = null;
+
+    function dismissIntroPreloader() {
+      if (introTimer) {
+        clearTimeout(introTimer);
+        introTimer = null;
+      }
+      const preloader = document.getElementById('intro-preloader');
+      if (!preloader || preloader.classList.contains('zoom-exit')) return;
+
+      // Fade the intro out and show the main content
+      preloader.classList.add('zoom-exit');
+      targetZ = 0;
+      currentZ = 0;
+
+      setTimeout(() => {
+        preloader.style.display = 'none';
+      }, 1150);
+    }
+
+
+
+    window.onload = function () {
+      try {
+        initThreeWorld();
+      } catch (err) {
+        console.warn('WebGL fallback active:', err);
+      }
+      setupNavigationControls();
+      updateEstimate();
+      animate();
+
+      // Auto-transition from animated logo intro into 3D universe after 3.3s
+      introTimer = setTimeout(dismissIntroPreloader, 3300);
+    };
+  </script>
+
+<div id="ia-case-modal" class="ia-modal" aria-hidden="true">
+  <div class="ia-modal-backdrop" onclick="closeCaseStudy()"></div>
+  <div class="ia-modal-panel custom-scroll" role="dialog" aria-modal="true" aria-labelledby="ia-modal-title">
+    <button class="ia-modal-close" type="button" aria-label="Close project details" onclick="closeCaseStudy()">×</button>
+    <div id="ia-modal-content"></div>
+  </div>
+</div>
+<div id="ia-lightbox" class="ia-lightbox" aria-hidden="true" onclick="closeImageLightbox()">
+  <button type="button" class="ia-lightbox-close" aria-label="Close image">×</button>
+  <img id="ia-lightbox-image" src="" alt="" onclick="event.stopPropagation()">
+  <p id="ia-lightbox-caption"></p>
+</div>
+
+<script src="assets/data/case-studies.js"></script>
+<script>
+(function(){
+  const projects = window.IMAGINGARTS_CASE_STUDIES || [];
+  const esc = (value) => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+  const byId = (id) => document.getElementById(id);
+  let activeFilter = 'All';
+
+  function renderCards(){
+    const list = activeFilter === 'All' ? projects : projects.filter(p => p.category === activeFilter);
+    byId('ia-case-count').textContent = `${list.length} selected ${list.length === 1 ? 'project' : 'projects'}`;
+    byId('ia-case-grid').innerHTML = list.map(p => `
+      <article class="ia-project-card">
+        <div class="ia-project-cover ${p.fit === 'contain' ? 'contain' : ''}">
+          <img src="${esc(p.cover)}" alt="${esc(p.name)} project cover" loading="lazy">
+        </div>
+        <div class="ia-project-body">
+          <span class="ia-project-category">${esc(p.eyebrow || p.category)}</span>
+          <h3 class="ia-project-name">${esc(p.name)}</h3>
+          <p class="ia-project-desc">${esc(p.description)}</p>
+          <div class="ia-project-foot">
+            <span class="ia-project-images">${(p.images || []).length} visuals</span>
+            <button class="ia-view-project" type="button" data-open-project="${esc(p.id)}">View case study <span aria-hidden="true">↗</span></button>
+          </div>
+        </div>
+      </article>`).join('');
+    byId('ia-case-grid').querySelectorAll('[data-open-project]').forEach(btn => btn.addEventListener('click', () => openCaseStudy(btn.dataset.openProject)));
+  }
+
+  function renderLogos(){
+    const logos = window.IMAGINGARTS_CLIENT_LOGOS || [];
+    byId('ia-logo-grid').innerHTML = logos.map(l => `<div><div class="ia-logo-tile"><img src="${esc(l.src)}" alt="${esc(l.name)} logo" loading="lazy"></div><div class="ia-logo-name">${esc(l.name)}</div></div>`).join('');
+  }
+
+  function renderProfileGallery(){
+    const items = window.IMAGINGARTS_PROFILE_GALLERY || [];
+    byId('ia-profile-gallery').innerHTML = items.map((item,i) => `<button type="button" class="ia-profile-tile" data-profile-image="${i}"><img src="${esc(item.src)}" alt="${esc(item.alt)}" loading="lazy"><span class="caption">${esc(item.caption)}</span></button>`).join('');
+    byId('ia-profile-gallery').querySelectorAll('[data-profile-image]').forEach(btn => {
+      const item = items[Number(btn.dataset.profileImage)];
+      btn.addEventListener('click', () => openImageLightbox(item.src,item.alt));
+    });
+  }
+
+  function openCaseStudy(id){
+    const p = projects.find(item => item.id === id);
+    if(!p) return;
+    const stats = (p.stats || []).map(s => `<div class="ia-stat"><strong>${esc(s[0])}</strong><span>${esc(s[1])}</span></div>`).join('');
+    const tags = (p.services || []).map(s => `<span class="ia-modal-tag">${esc(s)}</span>`).join('');
+    const gallery = (p.images || []).map((im,i) => `<img class="ia-modal-image ${im.fit === 'contain' ? 'contain' : ''}" src="${esc(im.src)}" alt="${esc(im.alt || p.name)}" loading="lazy" data-gallery-index="${i}">`).join('');
+    byId('ia-modal-content').innerHTML = `
+      <span class="ia-eyebrow">${esc(p.eyebrow || p.category)}</span>
+      <h2 id="ia-modal-title" class="ia-modal-title">${esc(p.name)}</h2>
+      <p class="ia-modal-description">${esc(p.description)}</p>
+      ${p.campaign ? `<p class="text-sm font-bold text-red-300 mt-3">${esc(p.campaign)}</p>` : ''}
+      ${tags ? `<div class="ia-modal-tags">${tags}</div>` : ''}
+      ${stats ? `<div class="ia-modal-stats">${stats}</div>` : ''}
+      <h3 class="ia-modal-section-title">Project gallery <span class="text-slate-500 font-normal">· ${(p.images||[]).length} visuals</span></h3>
+      <div class="ia-modal-gallery">${gallery}</div>
+      ${p.quote ? `<blockquote class="ia-quote">“${esc(p.quote)}”<small>${esc(p.quoteBy || '')}</small></blockquote>` : ''}`;
+    byId('ia-modal-content').querySelectorAll('[data-gallery-index]').forEach((img,i) => img.addEventListener('click', () => openImageLightbox(p.images[i].src,p.images[i].alt || p.name)));
+    byId('ia-case-modal').classList.add('open');
+    byId('ia-case-modal').setAttribute('aria-hidden','false');
+  }
+
+  window.openCaseStudy = openCaseStudy;
+  window.closeCaseStudy = function(){byId('ia-case-modal').classList.remove('open');byId('ia-case-modal').setAttribute('aria-hidden','true');};
+  window.openImageLightbox = function(src,caption){byId('ia-lightbox-image').src=src;byId('ia-lightbox-image').alt=caption||'';byId('ia-lightbox-caption').textContent=caption||'';byId('ia-lightbox').classList.add('open');byId('ia-lightbox').setAttribute('aria-hidden','false');};
+  window.closeImageLightbox = function(){byId('ia-lightbox').classList.remove('open');byId('ia-lightbox').setAttribute('aria-hidden','true');};
+  window.openProfileSpread = window.openImageLightbox;
+
+  byId('ia-case-filters').querySelectorAll('[data-filter]').forEach(btn => btn.addEventListener('click', () => {
+    activeFilter = btn.dataset.filter;
+    byId('ia-case-filters').querySelectorAll('[data-filter]').forEach(b => b.classList.toggle('active',b === btn));
+    renderCards();
+  }));
+  document.addEventListener('keydown',e => {if(e.key === 'Escape'){window.closeCaseStudy();window.closeImageLightbox();}});
+  renderCards(); renderLogos(); renderProfileGallery();
+})();
+</script>
+
+</body>
+</html>

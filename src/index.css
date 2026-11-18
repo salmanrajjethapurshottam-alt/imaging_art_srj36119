@@ -1,0 +1,197 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
+  --font-display: "Outfit", system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --color-obsidian: #0D0E12;
+  --color-ia-navy: #162A64;
+  --color-ia-navy-light: #25449C;
+  --color-ia-red: #E31E24;
+  --color-ia-red-dark: #B31217;
+}
+
+:root {
+  --bg-canvas: #EEF2F9;
+  --surface-card: #FFFFFF;
+  --surface-subcard: #F8FAFC;
+  --border-card: rgba(22, 42, 100, 0.14);
+  --shadow-card: 0 22px 54px -16px rgba(15, 23, 42, 0.16), 0 0 24px rgba(22, 42, 100, 0.08);
+  --text-main: #0D1326;
+}
+
+html.dark {
+  --bg-canvas: #0D0E12;
+  --surface-card: #0C0E15;
+  --surface-subcard: #0A0D16;
+  --border-card: rgba(255, 255, 255, 0.14);
+  --shadow-card: 0 24px 60px -16px rgba(0, 0, 0, 0.92), 0 0 32px rgba(22, 42, 100, 0.22);
+  --text-main: #F8FAFC;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: var(--bg-canvas);
+  color: var(--text-main);
+  font-family: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
+  overscroll-behavior: none;
+  transition: background-color 0.25s ease, color 0.2s ease;
+}
+
+/* Crisp opaque editorial card surfaces supporting both Light and Dark themes without backdrop-filter over WebGL */
+.studio-card {
+  background: var(--surface-card);
+  border: 1px solid var(--border-card);
+  box-shadow: var(--shadow-card);
+  transition: background-color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.studio-card:hover {
+  border-color: rgba(227, 30, 36, 0.48);
+}
+
+.brand-gradient-text {
+  background: linear-gradient(120deg, #0D1326 12%, #162A64 52%, #E31E24 92%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+html.dark .brand-gradient-text {
+  background: linear-gradient(120deg, #FFFFFF 15%, #6088F2 52%, #E31E24 90%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.brand-bar {
+  background: linear-gradient(90deg, #162A64 0%, #3B66E0 36%, #E31E24 74%, #FFFFFF 100%);
+}
+
+/* Scroll containers inside cards: crisp scrollbar & touch momentum without locking outer gestures */
+.zone-scroll-area {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+  touch-action: pan-y;
+}
+
+.custom-scroll::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.custom-scroll::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.custom-scroll::-webkit-scrollbar-thumb {
+  background: rgba(227, 30, 36, 0.5);
+  border-radius: 999px;
+}
+
+.custom-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(227, 30, 36, 0.78);
+}
+
+/* Intro preloader SVG animations */
+.logo-draw-line {
+  stroke-dasharray: 220;
+  stroke-dashoffset: 220;
+  animation: drawVectorStroke 1s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.logo-draw-line-2 {
+  stroke-dasharray: 220;
+  stroke-dashoffset: 220;
+  animation: drawVectorStroke 0.85s cubic-bezier(0.22, 1, 0.36, 1) 0.3s forwards;
+}
+
+.logo-draw-line-3 {
+  stroke-dasharray: 220;
+  stroke-dashoffset: 220;
+  animation: drawVectorStroke 0.85s cubic-bezier(0.22, 1, 0.36, 1) 0.55s forwards;
+}
+
+@keyframes drawVectorStroke {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.logo-node-group {
+  opacity: 0;
+  transform-origin: center;
+  animation: nodePopIn 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.logo-node-1 {
+  animation-delay: 0.25s;
+}
+
+.logo-node-2 {
+  animation-delay: 0.52s;
+}
+
+@keyframes nodePopIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.2);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.logo-wordmark-reveal {
+  opacity: 0;
+  transform: translateY(14px) scale(0.96);
+  animation: wordmarkAssemble 0.75s cubic-bezier(0.16, 1, 0.3, 1) 0.35s forwards;
+}
+
+@keyframes wordmarkAssemble {
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.logo-rule-expand {
+  stroke-dasharray: 140;
+  stroke-dashoffset: 140;
+  animation: drawVectorStroke 0.75s cubic-bezier(0.22, 1, 0.36, 1) 0.8s forwards;
+}
+
+.logo-tagline-reveal {
+  opacity: 0;
+  letter-spacing: 0.28em;
+  animation: taglineFocus 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.9s forwards;
+}
+
+@keyframes taglineFocus {
+  to {
+    opacity: 1;
+    letter-spacing: 0.08em;
+  }
+}
+
+.intro-progress-bar {
+  width: 0%;
+  animation: introFillBar 2.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes introFillBar {
+  to {
+    width: 100%;
+  }
+}
